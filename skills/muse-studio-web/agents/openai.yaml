@@ -1,0 +1,4 @@
+interface:
+  display_name: "Muse Studio Web"
+  short_description: "Viết kịch bản và vận hành Muse Web qua CLI local"
+  default_prompt: "Dùng $muse-studio-web để viết kịch bản theo yêu cầu của tôi và nhập bản nháp vào Muse Web."

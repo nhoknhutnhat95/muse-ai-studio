@@ -41,9 +41,27 @@ Sau khi cập nhật bằng `git pull --ff-only`, chạy **`Restart-Muse-Web.cmd
 
 Bảng bằng chứng và giới hạn: [docs/feature-parity.md](docs/feature-parity.md). Từ v0.3, web quản lý backend [Muse2API nguồn mở (MIT)](https://github.com/czg86389-hub/muse2api) riêng. Đây là ứng dụng local độc lập với Muse desktop; mô hình tạo media vẫn nằm ở dịch vụ Muse, không phải mô hình offline. Mã upstream được ghim commit trong `vendor/muse2api/UPSTREAM.md`.
 
-## Dùng từ Codex
+## Cài skill cho Codex hoặc Claude Code trên máy khác
 
-CLI: `D:\muse-studio-ai\muse.cmd` hoặc `node D:\muse-studio-ai\bin\muse.mjs`. Tất cả lệnh trả JSON. Lỗi qua stderr và exit code 1.
+Trong thư mục clone, mở CMD và chạy:
+
+```cmd
+git pull --ff-only
+Install-AI-Skills.cmd
+```
+
+Mặc định cài cho cả hai. Chỉ cài một bên: `Install-AI-Skills.cmd codex` hoặc `Install-AI-Skills.cmd claude`. Installer cần Node đã có trên máy, không cần web đang chạy; tự ghi đường dẫn thư mục clone vào cấu hình skill. Nếu chuyển vị trí repo, chạy lại installer. Khi `git pull` cập nhật skill, chạy lại installer để nhận hướng dẫn mới. File skill cũ được sao lưu ở `skill-backups` bên cạnh thư mục `skills`; không đụng các skill khác.
+
+- **Codex:** cài user skill vào `%USERPROFILE%/.agents/skills/muse-studio-web`. Nếu đã có skill này ở đường dẫn cũ `%USERPROFILE%/.codex/skills`, cập nhật ngay tại đó để tránh trùng tên. Thư mục hiện hành được đối chiếu từ [tài liệu OpenAI](https://learn.chatgpt.com/docs/build-skills#where-codex-loads-local-skills).
+- **Claude Code local:** cài vào `%USERPROFILE%/.claude/skills/muse-studio-web`, theo [tài liệu Claude Code](https://code.claude.com/docs/en/skills#choose-where-skills-load). Cài này dành cho công cụ chạy local có quyền gọi CLI trên máy.
+
+Mở chat mới sau khi cài. Trong Codex: **`$muse-studio-web`**; trong Claude Code: **`/muse-studio-web`**. Thử: “Dùng muse-studio-web kiểm tra kết nối, rồi nhập bản nháp kịch bản 3 cảnh về vườn cây, chưa tạo video.” Skill không cấp thêm quyền shell hoặc tự bỏ qua việc duyệt thao tác của công cụ AI.
+
+Máy mới vẫn cần mở `Start-Muse-Web.cmd` và thêm tài khoản riêng để tạo media. Bộ skill chỉ gồm hướng dẫn, mẫu JSON và wrapper CLI; không chứa cookie, key, dự án hay video. Web dùng cổng khác thì cài với `Install-AI-Skills.cmd -Agent both -WebUrl http://127.0.0.1:3211`.
+
+## Dùng từ Codex / Claude Code
+
+CLI: `muse.cmd` trong thư mục clone hoặc `node <thu-muc-clone>/bin/muse.mjs`. Tất cả lệnh trả JSON. Lỗi qua stderr và exit code 1.
 
 ```powershell
 .\muse.cmd doctor

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "title": "Mẫu tham chiếu nhân vật: người thợ gốm",
+  "settings": {"size": "9:16", "duration": 10, "concurrency": 1},
+  "scenes": [
+    {
+      "id": "master",
+      "title": "Ảnh khóa người thợ gốm",
+      "kind": "image",
+      "size": "9:16",
+      "prompt": "Chân dung bán thân một người thợ gốm trưởng thành trong xưởng nhỏ, tóc đen ngắn, áo sơ mi màu chàm và tạp dề vải nâu. Ánh sáng tự nhiên từ cửa sổ bên trái. Nhân vật nhìn về bàn xoay, nét mặt bình thản, hình ảnh chân thực. Không chữ, không logo.",
+      "reviewRequired": true
+    },
+    {
+      "id": "s001",
+      "title": "Tạo hình chiếc cốc",
+      "kind": "video",
+      "duration": 10,
+      "size": "9:16",
+      "reference": "scene:master",
+      "referenceMode": "identity",
+      "prompt": "Giữ khuôn mặt, tóc và trang phục của người thợ trong ảnh tham chiếu. Trong cùng xưởng gốm có ánh sáng cửa sổ bên trái, người thợ dùng hai tay tạo hình một chiếc cốc trên bàn xoay. Máy quay trung cảnh đứng yên, chuyển động tay chậm và liên tục, đất sét giữ hình dạng hợp lý. Không chữ, không logo.",
+      "narration": "Từ một nắm đất mềm, người thợ chậm rãi tạo nên chiếc cốc, giữ lại dấu tay trong từng đường nét."
+    }
+  ],
+  "metadata": {"purpose": "Ví dụ cấu trúc; thay bằng brief thực tế trước khi nhập và chạy."}
+}

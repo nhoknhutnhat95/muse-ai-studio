@@ -18,7 +18,9 @@ Launcher mặc định dùng cổng `3210`. Có thể đặt `MUSE_PORT` (1–65
 
 Sau khi cập nhật bằng `git pull --ff-only`, chạy **`Restart-Muse-Web.cmd`** để nạp mã mới rồi tải lại trang. Lệnh chỉ dừng đúng server thuộc thư mục hiện tại; từ chối khởi động lại khi còn job tạo media, hậu kỳ hoặc đăng nhập chưa xong. Có thể thêm `-NoBrowser` nếu không cần mở trình duyệt.
 
-**Dự án** có sidebar riêng bên phải, có tìm kiếm, vùng cuộn độc lập và tự cập nhật từ Codex/CLI. Trên màn hình hẹp, bấm **Dự án** ở thanh trên để mở danh sách từ bên phải. Mở thẳng dự án bằng `http://127.0.0.1:3210/?project=PROJECT_ID`; nút **Sao chép link** lấy đúng địa chỉ. Bản dựng có `projectId` hiện ngay trong **Video thành phẩm** phía trên storyboard để xem/tải; các clip nguồn vẫn nằm theo từng cảnh. Video dựng ngoài Muse Web không tự nhập vào danh sách này.
+**Giao diện dashboard đen trắng:** mở trang chủ để xem Tổng quan với số dự án, cảnh đã tạo, hàng đợi, mục cần duyệt và tiến độ thực tế. Nút mặt trăng/mặt trời trên thanh đầu đổi sáng/tối, nút cạnh breadcrumb thu gọn menu trái; lựa chọn được nhớ riêng trong trình duyệt. Thiết kế tham khảo [Studio Admin / next-shadcn-admin-dashboard](https://github.com/arhamkhnz/next-shadcn-admin-dashboard), triển khai trực tiếp trên web hiện có, không thêm bước build Next.js. Tất cả bảng, biểu mẫu và trạng thái tài khoản dùng chung giao diện trung tính; trạng thái vẫn có nhãn và thanh hạn mức rõ ràng.
+
+**Dự án** có sidebar riêng bên phải, có tìm kiếm, vùng cuộn độc lập và tự cập nhật từ Codex/CLI. Trên màn hình hẹp, bấm **Dự án** ở thanh trên để mở danh sách từ bên phải; điện thoại có menu điều hướng riêng bên trái. Các sidebar hỗ trợ Escape và giữ focus bàn phím bên trong khi mở. Mở thẳng dự án bằng `http://127.0.0.1:3210/?project=PROJECT_ID`; nút **Sao chép link** lấy đúng địa chỉ. Bản dựng có `projectId` hiện ngay trong **Video thành phẩm** phía trên storyboard để xem/tải; các clip nguồn vẫn nằm theo từng cảnh. Video dựng ngoài Muse Web không tự nhập vào danh sách này.
 
 ## Chức năng
 

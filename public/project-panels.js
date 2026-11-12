@@ -9,37 +9,6 @@ export function projectSummary(project) {
   return {state:'draft',label:jobs.length?'Chưa hoàn tất':'Bản nháp',done};
 }
 
-export function createProjectSidebar() {
-  const panel=document.querySelector('#projectSidebar'),toggle=document.querySelector('#toggleProjects'),close=document.querySelector('#closeProjects'),backdrop=document.querySelector('#projectsBackdrop');
-  const narrow=window.matchMedia('(max-width:1179px)'),background=[document.querySelector('.sidebar'),document.querySelector('.shell')];
-  let open=false;
-  function sync() {
-    const modal=narrow.matches&&open;
-    document.body.classList.toggle('projects-open',modal);
-    panel.inert=narrow.matches&&!open;
-    panel.setAttribute('role',narrow.matches?'dialog':'complementary');
-    if(modal)panel.setAttribute('aria-modal','true');else panel.removeAttribute('aria-modal');
-    if(narrow.matches&&!open)panel.setAttribute('aria-hidden','true');else panel.removeAttribute('aria-hidden');
-    backdrop.hidden=!modal;toggle.setAttribute('aria-expanded',String(!narrow.matches||open));
-    background.forEach(el=>el.inert=modal);
-  }
-  function dismiss() {if(!narrow.matches||!open)return;open=false;sync();toggle.focus();}
-  toggle.addEventListener('click',()=>{open=!open;sync();if(open)requestAnimationFrame(()=>{if(open)document.querySelector('#projectSearch').focus();});});
-  close.addEventListener('click',dismiss);backdrop.addEventListener('click',dismiss);
-  panel.addEventListener('click',event=>{if(event.target.closest('[data-project],#newProject'))dismiss();});
-  document.addEventListener('keydown',event=>{
-    if(!narrow.matches||!open)return;
-    if(event.key==='Escape'){event.preventDefault();dismiss();return;}
-    if(event.key!=='Tab')return;
-    const focusable=[...panel.querySelectorAll('button:not(:disabled),input:not(:disabled),a[href]')].filter(el=>el.getClientRects().length);
-    const first=focusable[0],last=focusable.at(-1);
-    if(event.shiftKey&&document.activeElement===first){event.preventDefault();last?.focus();}
-    else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first?.focus();}
-  });
-  narrow.addEventListener('change',()=>{open=false;sync();if(panel.contains(document.activeElement)&&narrow.matches)toggle.focus();});
-  sync();
-}
-
 export function createProjectResults({api,esc,getCurrent}) {
   let lastHost=null,lastSignature='';
   const states={queued:'Đang chờ dựng',running:'Đang dựng video',cancelling:'Đang hủy',cancelled:'Đã hủy',interrupted:'Bản dựng bị gián đoạn',failed:'Dựng video bị lỗi'};

@@ -1,46 +1,52 @@
 <!doctype html>
 <html lang="vi">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#111719"><title>Muse Studio · Local workspace</title><link rel="icon" href="/favicon.svg"><link rel="stylesheet" href="/styles.css"><link rel="stylesheet" href="/features.css"><script src="/app.js" type="module"></script></head>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#ffffff"><title>Muse Studio · Dashboard</title><script src="/theme.js"></script><link rel="icon" href="/favicon.svg"><link rel="stylesheet" href="/styles.css"><link rel="stylesheet" href="/features.css"><script src="/app.js" type="module"></script></head>
 <body>
-  <aside class="sidebar">
-    <a class="brand" href="/" aria-label="Muse Studio"><span class="brand-mark">m<span>·</span></span><span>Muse <b>studio</b><small>LOCAL WORKSPACE</small></span></a>
-    <div class="sidebar-tools"><div class="nav-label">CÔNG CỤ SẢN XUẤT</div>
+  <a class="skip-link" href="#main">Đến nội dung chính</a>
+  <aside class="sidebar" id="toolSidebar" aria-label="Điều hướng studio">
+    <div class="brand-row"><a class="brand" href="/" aria-label="Muse Studio"><span class="brand-mark">m<span>·</span></span><span class="brand-copy">Muse Studio<small>Không gian sáng tạo</small></span></a><button class="icon-button nav-close" id="closeNavigation" aria-label="Đóng điều hướng" data-icon="close"></button></div>
+    <button class="primary sidebar-create" data-import title="Nhập kịch bản"><span data-icon="plus"></span><span class="nav-text">Nhập kịch bản</span></button>
+    <div class="sidebar-tools">
     <nav aria-label="Điều hướng">
-      <button class="nav-item active" data-view="script"><span>▤</span> Kịch bản <span class="nav-hint">01</span></button>
-      <button class="nav-item" data-view="affiliate"><span>◈</span> Affiliate</button>
-      <button class="nav-item" data-view="video"><span>▷</span> Xưởng video</button>
-      <button class="nav-item" data-view="character"><span>♙</span> Đồng bộ nhân vật</button>
-      <button class="nav-item" data-view="image"><span>▧</span> Xưởng ảnh</button>
-      <button class="nav-item" data-view="production"><span>♫</span> Lồng tiếng & dựng phim</button>
-      <button class="nav-item" data-view="queue"><span>◷</span> Hàng đợi <span id="queueCount" class="counter">0</span></button>
-      <button class="nav-item" data-view="library"><span>▦</span> Thư viện</button>
-      <button class="nav-item" data-view="accounts"><span>♧</span> Tài khoản</button>
-      <button class="nav-item" data-view="proxies"><span>⇄</span> Proxy</button>
-      <button class="nav-item" data-view="settings"><span>⚙</span> Cài đặt</button>
-      <button class="nav-item" data-view="connection"><span>⌁</span> Kết nối Muse</button>
+      <div class="nav-group"><div class="nav-label">Không gian làm việc</div>
+      <button class="nav-item active" data-view="dashboard" title="Tổng quan" aria-label="Tổng quan"><span data-icon="dashboard"></span><span class="nav-text">Tổng quan</span></button>
+      <button class="nav-item" data-view="script" title="Kịch bản" aria-label="Kịch bản"><span data-icon="script"></span><span class="nav-text">Kịch bản</span></button>
+      <button class="nav-item" data-view="queue" title="Hàng đợi" aria-label="Hàng đợi"><span data-icon="queue"></span><span class="nav-text">Hàng đợi</span><span id="queueCount" class="counter">0</span></button>
+      <button class="nav-item" data-view="library" title="Thư viện" aria-label="Thư viện"><span data-icon="library"></span><span class="nav-text">Thư viện</span></button></div>
+      <div class="nav-group"><div class="nav-label">Sản xuất nội dung</div>
+      <button class="nav-item" data-view="video" title="Xưởng video" aria-label="Xưởng video"><span data-icon="video"></span><span class="nav-text">Xưởng video</span></button>
+      <button class="nav-item" data-view="image" title="Xưởng ảnh" aria-label="Xưởng ảnh"><span data-icon="image"></span><span class="nav-text">Xưởng ảnh</span></button>
+      <button class="nav-item" data-view="character" title="Đồng bộ nhân vật" aria-label="Đồng bộ nhân vật"><span data-icon="character"></span><span class="nav-text">Đồng bộ nhân vật</span></button>
+      <button class="nav-item" data-view="affiliate" title="Affiliate" aria-label="Affiliate"><span data-icon="affiliate"></span><span class="nav-text">Affiliate</span></button>
+      <button class="nav-item" data-view="production" title="Lồng tiếng & dựng phim" aria-label="Lồng tiếng & dựng phim"><span data-icon="production"></span><span class="nav-text">Lồng tiếng & dựng phim</span></button></div>
+      <div class="nav-group"><div class="nav-label">Quản lý</div>
+      <button class="nav-item" data-view="accounts" title="Tài khoản" aria-label="Tài khoản"><span data-icon="accounts"></span><span class="nav-text">Tài khoản</span></button>
+      <button class="nav-item" data-view="proxies" title="Proxy" aria-label="Proxy"><span data-icon="proxies"></span><span class="nav-text">Proxy</span></button>
+      <button class="nav-item" data-view="settings" title="Cài đặt" aria-label="Cài đặt"><span data-icon="settings"></span><span class="nav-text">Cài đặt</span></button>
+      <button class="nav-item" data-view="connection" title="Kết nối Muse" aria-label="Kết nối Muse"><span data-icon="connection"></span><span class="nav-text">Kết nối Muse</span></button></div>
     </nav></div>
     <div class="sidebar-bottom"><span class="local-dot"></span><div>Chỉ trên máy của bạn<small>127.0.0.1 · Web + CLI</small></div><span class="version">v0.3</span></div>
   </aside>
   <div class="shell">
-    <header class="topbar"><div class="breadcrumb">Workspace <span>/</span> <b id="viewLabel">Kịch bản</b></div><div class="topbar-right"><button class="ghost small project-toggle" id="toggleProjects" aria-controls="projectSidebar" aria-expanded="false">▤ Dự án <span id="projectToggleCount">0</span></button><button class="ghost small" id="cliHelp">⌘ Hướng dẫn CLI</button><button class="connection-pill" id="connectionPill"><span class="status-dot"></span><span>Đang kết nối Muse…</span></button></div></header>
-    <main id="main" aria-live="polite"></main>
-    <footer class="footer"><span>CODEX → KỊCH BẢN → MUSE → THÀNH PHẨM</span><span id="lastSync">Dữ liệu lưu trên máy</span></footer>
+    <header class="topbar"><div class="topbar-left"><button class="icon-button" id="toggleNavigation" aria-label="Thu gọn điều hướng" aria-controls="toolSidebar" aria-expanded="true" data-icon="panel"></button><div class="breadcrumb"><span class="breadcrumb-root">Workspace <span>/</span></span><b id="viewLabel">Tổng quan</b></div></div><div class="topbar-right"><button class="connection-pill" id="connectionPill"><span class="status-dot"></span><span>Đang kết nối…</span></button><button class="icon-button" id="cliHelp" title="Hướng dẫn CLI" aria-label="Hướng dẫn CLI" data-icon="terminal"></button><button class="icon-button" id="toggleTheme" aria-label="Chuyển sang giao diện tối" data-icon="moon"></button><button class="ghost small project-toggle" id="toggleProjects" aria-controls="projectSidebar" aria-expanded="false"><span data-icon="library"></span> Dự án <span id="projectToggleCount" class="count-badge">0</span></button></div></header>
+    <main id="main" tabindex="-1"></main>
+    <footer class="footer"><span>Muse Studio <span class="footer-divider">/</span> Không gian sản xuất trên máy của bạn</span><span id="lastSync">Tự động đồng bộ</span></footer>
   </div>
   <button id="projectsBackdrop" class="projects-backdrop" aria-label="Đóng danh sách dự án" tabindex="-1" hidden></button>
   <aside id="projectSidebar" class="project-sidebar" aria-labelledby="projectsHeading">
     <section class="projects-section">
-      <div class="projects-heading"><h2 id="projectsHeading">Dự án <span id="projectCount">0</span></h2><div class="projects-heading-actions"><button class="ghost small" id="refreshProjects" title="Cập nhật dự án từ Codex / CLI" aria-label="Cập nhật dự án">↻</button><button class="ghost small projects-close" id="closeProjects" aria-label="Đóng dự án">×</button></div></div>
+      <div class="projects-heading"><h2 id="projectsHeading"><span data-icon="library"></span> Dự án <span id="projectCount" class="count-badge">0</span></h2><div class="projects-heading-actions"><button class="icon-button" id="refreshProjects" title="Cập nhật dự án từ Codex / CLI" aria-label="Cập nhật dự án" data-icon="refresh"></button><button class="icon-button projects-close" id="closeProjects" aria-label="Đóng dự án" data-icon="close"></button></div></div>
       <p class="projects-description">Kịch bản, tiến độ và thành phẩm của bạn.</p>
-      <input id="projectSearch" type="search" placeholder="Tìm dự án…" aria-label="Tìm dự án" autocomplete="off">
+      <div class="project-search"><span data-icon="search"></span><input id="projectSearch" type="search" placeholder="Tìm dự án…" aria-label="Tìm dự án" autocomplete="off"></div>
       <div id="projectList" class="project-list"></div>
-      <div class="projects-bottom"><button class="new-project primary" id="newProject"><span>＋</span> Nhập kịch bản</button><p class="projects-sync">Tự cập nhật dự án tạo từ Codex</p></div>
+      <div class="projects-bottom"><button class="new-project ghost" id="newProject"><span data-icon="plus"></span> Nhập kịch bản</button><p class="projects-sync"><span class="status-dot"></span> Đồng bộ từ web & CLI</p></div>
     </section>
   </aside>
   <dialog id="importDialog"><div class="dialog-heading"><div><div class="eyebrow">TỪ Ý TƯỞNG ĐẾN TỪNG KHUNG HÌNH</div><h2>Đưa kịch bản vào studio</h2></div><button class="icon-btn" data-close="importDialog" aria-label="Đóng">×</button></div><p class="muted">Dán JSON từ Codex, hoặc TXT với mỗi dòng là một prompt. Nhập kịch bản chỉ tạo bản nháp.</p><label>Tên dự án<input id="importTitle" placeholder="Ví dụ: Chôm chôm · Tập 04" maxlength="200"></label><div class="input-toolbar"><span>JSON / TXT</span><div><button id="loadExample" class="ghost small">Dùng kịch bản mẫu</button><label class="button ghost small file-button">Mở file<input type="file" id="scriptFile" accept=".json,.txt" hidden></label></div></div><textarea id="importSource" class="code-input" rows="14" placeholder='{"title":"Tên dự án","scenes":[{"id":"s001","prompt":"Mô tả cảnh..."}]}' spellcheck="false"></textarea><div class="inline-error" id="importError"></div><div class="dialog-footer"><span class="muted">Prompt và lời đọc được giữ nguyên nội dung.</span><button class="primary" id="importSubmit">Tạo bản nháp <span>→</span></button></div></dialog>
   <dialog id="cliDialog"><div class="dialog-heading"><div><div class="eyebrow">DÀNH CHO CODEX VÀ AI AGENT</div><h2>Một kịch bản. Hai cách thao tác.</h2></div><button class="icon-btn" data-close="cliDialog" aria-label="Đóng">×</button></div><p class="muted">CLI trả JSON, dùng chung dự án và tiến độ với giao diện này.</p><div class="cli-steps"><b>1. Kiểm tra kết nối</b><pre>muse doctor</pre><b>2. Kiểm tra và nhập kịch bản</b><pre>muse validate kich-ban.json
 muse import kich-ban.json</pre><b>3. Bắt đầu tạo nội dung</b><pre>muse run &lt;project-id&gt;
 muse status &lt;project-id&gt;
-muse wait &lt;project-id&gt;</pre><b>4. Xuất kết quả</b><pre>muse export &lt;project-id&gt; --out ket-qua.json</pre></div><p class="muted">Dùng <code>D:\muse-studio-ai\muse.cmd</code> nếu chưa thêm CLI vào PATH. Xem toàn bộ lệnh bằng <code>muse help</code>.</p></dialog>
+muse wait &lt;project-id&gt;</pre><b>4. Xuất kết quả</b><pre>muse export &lt;project-id&gt; --out ket-qua.json</pre></div><p class="muted">Dùng <code>muse.cmd</code> trong thư mục Muse nếu chưa thêm CLI vào PATH. Xem toàn bộ lệnh bằng <code>muse help</code>.</p></dialog>
   <dialog id="sceneDialog"><div class="dialog-heading"><div><div class="eyebrow">BIÊN TẬP CẢNH</div><h2 id="sceneDialogTitle">Chi tiết cảnh</h2></div><button class="icon-btn" data-close="sceneDialog" aria-label="Đóng">×</button></div><form id="sceneForm"><label>Tên cảnh<input id="sceneTitle" required maxlength="200"></label><div class="form-row"><label>Loại nội dung<select id="sceneKind"><option value="video">Video</option><option value="image">Ảnh</option></select></label><label>Tỷ lệ<select id="sceneSize"><option>16:9</option><option>9:16</option><option>1:1</option><option>4:3</option><option>3:4</option></select></label><label>Giây / clip<input type="number" id="sceneDuration" min="1" max="30" value="10" required></label></div><label>Prompt<textarea id="scenePrompt" rows="7" required maxlength="12000"></textarea></label><label>Lời đọc / ghi chú kịch bản<textarea id="sceneNarration" rows="3"></textarea></label><div class="reference-row"><label>Ảnh tham chiếu<select id="sceneReference"><option value="">Không có ảnh tham chiếu</option></select></label><label class="button ghost file-button">Tải ảnh<input type="file" id="referenceFile" accept="image/png,image/jpeg,image/webp" hidden></label></div><label>Ảnh tham chiếu bổ sung (mỗi dòng asset:ID hoặc scene:ID)<textarea id="sceneRefs" rows="2"></textarea></label><div class="form-row"><label>Chế độ tham chiếu<select id="sceneRefMode"><option value="first_frame">Ảnh đầu video</option><option value="identity">Giữ danh tính</option></select></label><label>Account ID cố định (để trống: tự động)<input id="sceneAccount"></label></div><label class="check"><input type="checkbox" id="sceneReview"> Duyệt ảnh trước khi chạy cảnh phụ thuộc</label><small class="muted">Ảnh từ cảnh khác sẽ được tạo trước. Lời đọc được lưu để dựng phim, không tự tổng hợp giọng.</small><div class="inline-error" id="sceneError"></div><div class="dialog-footer"><button type="button" class="ghost danger" id="removeScene">Bỏ cảnh</button><button class="primary" type="submit" id="saveScene">Lưu cảnh</button></div></form></dialog>
   <div id="toasts" class="toasts" role="status"></div>
 </body></html>

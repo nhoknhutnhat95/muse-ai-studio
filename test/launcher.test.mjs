@@ -7,6 +7,7 @@ import net from 'node:net';
 import http from 'node:http';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { DatabaseSync } from 'node:sqlite';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const powershell = path.join(process.env.SystemRoot || 'C:\\Windows', 'System32/WindowsPowerShell/v1.0/powershell.exe');
@@ -114,8 +115,18 @@ test('Windows launcher works with source only and explains startup failures', { 
     } finally { await new Promise(resolve => other.close(resolve)); }
   });
   await t.test('fresh source starts with Unicode paths, custom port/data and no Muse or Python', async () => {
-    const result = await launch();
+    // Simulate first-run npm locally; tests never download packages.
+    const runtime = path.join(dir, 'Node runtime');
+    const npmDirectory = path.join(runtime, 'node_modules/npm/bin');
+    await mkdir(npmDirectory, { recursive: true });
+    await cp(process.execPath, path.join(runtime, 'node.exe'));
+    await writeFile(path.join(clone, 'package-lock.json'), '{}');
+    await writeFile(path.join(npmDirectory, 'npm-cli.js'), "const fs=require('node:fs');fs.writeFileSync('npm-invocation.json',JSON.stringify(process.argv.slice(2)));fs.mkdirSync('node_modules/playwright-core',{recursive:true});fs.writeFileSync('node_modules/playwright-core/package.json','{}');");
+    const result = await launch({ MUSE_NODE: path.join(runtime, 'node.exe') });
     assert.equal(result.code, 0, JSON.stringify(result));
+    const npmArgs = JSON.parse(await readFile(path.join(clone, 'npm-invocation.json'), 'utf8'));
+    assert.ok(npmArgs.includes('ci'));
+    assert.ok(npmArgs.includes('--ignore-scripts'));
     assert.equal((await (await fetch(`${url}/api/health`)).json()).ok, true);
     assert.deepEqual(await (await fetch(`${url}/api/projects`)).json(), []);
     const capabilities = await (await fetch(`${url}/api/media/capabilities`)).json();
@@ -130,5 +141,23 @@ test('Windows launcher works with source only and explains startup failures', { 
     assert.equal(result.code, 0, JSON.stringify(result));
     assert.match(result.stdout, /Muse Web da chay/);
     assert.equal(await readFile(lock, 'utf8'), original);
+  });
+  await t.test('restart replaces only this workspace server when it is idle', async () => {
+    const original = JSON.parse(await readFile(lock, 'utf8')).pid;
+    args[args.indexOf('-File')+1]=path.join(clone, 'scripts/restart.ps1');
+    const result=await launch();
+    assert.equal(result.code,0,JSON.stringify(result));
+    assert.notEqual(JSON.parse(await readFile(lock,'utf8')).pid,original);
+    assert.equal((await (await fetch(`${url}/api/health`)).json()).ok,true);
+  });
+  await t.test('restart refuses a pending job and leaves the process alive', async () => {
+    const project=await (await fetch(`${url}/api/projects`,{method:'POST',headers:{'Content-Type':'application/json','X-Muse-Client':'studio'},body:JSON.stringify({title:'Restart guard fixture',scenes:[{id:'s1',prompt:'Test only'}]})})).json();
+    // Draft is paused, so this isolated fixture cannot submit generation.
+    const db=new DatabaseSync(path.join(clone,env.MUSE_DATA_DIR,'studio.sqlite'));
+    try {db.prepare("INSERT INTO jobs(id,project_id,scene_id,state) VALUES(?,?,?,'queued')").run('restart-fixture',project.id,'s1');}finally{db.close();}
+    const before=await readFile(lock,'utf8');const result=await launch();
+    assert.equal(result.code,1,JSON.stringify(result));assert.match(result.stdout,/Dang co tac vu/);
+    assert.equal(await readFile(lock,'utf8'),before);
+    assert.equal((await (await fetch(`${url}/api/health`)).json()).ok,true);
   });
 });

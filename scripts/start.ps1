@@ -58,6 +58,23 @@ try {
         & $studioNode --no-warnings -e "try { const { DatabaseSync } = require('node:sqlite'); const db = new DatabaseSync(':memory:'); db.close(); } catch { process.exit(1); }"
         if ($LASTEXITCODE -ne 0) { throw 'Node.js khong mo duoc SQLite. Cai lai Node.js LTS ban 24 tro len va kiem tra bien NODE_OPTIONS neu co.' }
 
+        # Account login uses the pinned browser driver. Basic draft/media APIs can
+        # still start offline if this optional first-run preparation fails.
+        $studioLockfile = Join-Path $studioRoot 'package-lock.json'
+        $studioBrowserDriver = Join-Path $studioRoot 'node_modules\playwright-core\package.json'
+        if ((Test-Path -LiteralPath $studioLockfile) -and -not (Test-Path -LiteralPath $studioBrowserDriver)) {
+            $studioNpmCli = Join-Path (Split-Path -Parent $studioNode) 'node_modules\npm\bin\npm-cli.js'
+            if (Test-Path -LiteralPath $studioNpmCli) {
+                Write-Host 'Dang cai thanh phan dang nhap tai khoan (lan dau can Internet)...'
+                Push-Location -LiteralPath $studioRoot
+                try {
+                    $ErrorActionPreference = 'Continue'
+                    & $studioNode $studioNpmCli ci --ignore-scripts --no-audit --no-fund --fetch-retries=0 --fetch-timeout=20000
+                    if ($LASTEXITCODE -ne 0) { Write-Host 'Chua cai duoc thanh phan dang nhap. Web van mo; thu npm ci khi co Internet.' }
+                } finally { $ErrorActionPreference = 'Stop'; Pop-Location }
+            } else { Write-Host 'Can npm ci de dung dang nhap tai khoan. Ban Node portable hien tai chua co npm.' }
+        }
+
         $studioData = if ($env:MUSE_DATA_DIR) { $env:MUSE_DATA_DIR } else { Join-Path $studioRoot 'data' }
         if (-not [System.IO.Path]::IsPathRooted($studioData)) { $studioData = Join-Path $studioRoot $studioData }
         $studioData = [System.IO.Path]::GetFullPath($studioData)

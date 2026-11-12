@@ -7,12 +7,14 @@ Mở **http://127.0.0.1:3210**. Khởi động bằng `Start-Muse-Web.cmd`. Gi�
 ## Chạy lần đầu trên máy Windows khác
 
 1. Cài **Node.js LTS phiên bản 24 trở lên** bằng Windows Installer (`.msi`) từ [nodejs.org](https://nodejs.org/en/download). Đóng/mở lại terminal sau khi cài; `node --version` phải hiện `v24` trở lên.
-2. Clone hoặc giải nén **toàn bộ mã nguồn**, rồi bấm `Start-Muse-Web.cmd` trong thư mục đó. Không cần `npm install`; web tự tạo thư mục dữ liệu. Đường dẫn có dấu và khoảng trắng được hỗ trợ.
+2. Clone hoặc giải nén **toàn bộ mã nguồn**, rồi bấm `Start-Muse-Web.cmd` trong thư mục đó. Launcher tự chạy `npm ci` lần đầu để cài thành phần đăng nhập tài khoản; cần Internet cho bước này. Phần soạn thảo vẫn mở được nếu chưa cài thành phần đó. Web tự tạo thư mục dữ liệu; hỗ trợ đường dẫn có dấu/khoảng trắng.
 3. Để tạo ảnh/video và dùng tài khoản, cài/mở Muse AI Studio và đăng nhập trên máy nhận. Có thể mở web và chuẩn bị draft khi chưa có backend Muse. Các chức năng lồng tiếng/dựng phim cần thêm media runtime ở phần bên dưới.
 
 Nếu lỗi, launcher giữ cửa sổ để đọc thông báo: thiếu Node.js, Node quá cũ, SQLite không dùng được, hoặc cổng đang bận. Lỗi máy chủ có đường dẫn `server-error.log` để kiểm tra. Nếu dùng bản launcher cũ chỉ chớp rồi tắt, mở CMD tại thư mục clone rồi chạy `Start-Muse-Web.cmd` để thấy lỗi, sau đó cập nhật mã nguồn.
 
 Launcher mặc định dùng cổng `3210`. Có thể đặt `MUSE_PORT` (1–65535), `MUSE_DATA_DIR` (thư mục dữ liệu riêng) hoặc `MUSE_NODE` (đường dẫn đầy đủ đến `node.exe` bản portable). `Start-Muse-Web.cmd -NoBrowser` khởi động mà không mở trình duyệt. Mở lại launcher khi server sẵn sàng sẽ dùng lại server đang chạy trên cổng đó.
+
+Sau khi cập nhật bằng `git pull --ff-only`, chạy **`Restart-Muse-Web.cmd`** để nạp mã mới rồi tải lại trang. Lệnh chỉ dừng đúng server thuộc thư mục hiện tại; từ chối khởi động lại khi còn job tạo media, hậu kỳ hoặc đăng nhập chưa xong. Có thể thêm `-NoBrowser` nếu không cần mở trình duyệt.
 
 **Dự án** có sidebar riêng bên phải, có tìm kiếm, vùng cuộn độc lập và tự cập nhật từ Codex/CLI. Trên màn hình hẹp, bấm **Dự án** ở thanh trên để mở danh sách từ bên phải. Mở thẳng dự án bằng `http://127.0.0.1:3210/?project=PROJECT_ID`; nút **Sao chép link** lấy đúng địa chỉ. Bản dựng có `projectId` hiện ngay trong **Video thành phẩm** phía trên storyboard để xem/tải; các clip nguồn vẫn nằm theo từng cảnh. Video dựng ngoài Muse Web không tự nhập vào danh sách này.
 
@@ -32,7 +34,7 @@ Launcher mặc định dùng cổng `3210`. Có thể đặt `MUSE_PORT` (1–65
 | Hậu kỳ | Trích frame, tốc độ, cắt khoảng lặng, cân âm lượng, 24/25/30/60fps, nội suy quang học, 720p/1080p/4K Lanczos |
 | Hàng đợi | SQLite bền vững, pause/cancel/retry, tải media tự động, đối chiếu POST chưa rõ, hủy tác vụ Muse theo ID |
 | Thư viện | Kho backend và thành phẩm local, tìm/lọc/sắp xếp, xem/tải, xóa tệp backend được chọn rõ |
-| Tài khoản / proxy | Xem trạng thái, cookie đơn/batch, quota, test/keepalive, bật/tắt, chỉnh tên/gán proxy, CRUD và thao tác hàng loạt |
+| Tài khoản / proxy | Thêm bằng mã nhập, email/mật khẩu/2FA, link OTP hoặc trình duyệt thủ công; cookie đơn/batch, quota, test/keepalive, bật/tắt, chỉnh tên/gán proxy, CRUD |
 | Cài đặt | Mặc định dự án, giới hạn hàng đợi web, timeout, tùy chọn thư viện; lưu riêng trong SQLite web |
 
 Bảng bằng chứng và giới hạn: [docs/feature-parity.md](docs/feature-parity.md). Đây là bản tái tạo chức năng kết nối backend đã cài, không phải một engine tạo video chạy offline độc lập.
@@ -128,7 +130,32 @@ Có thể thay project/sceneIds bằng `videoAssets:["asset:..."]` để ghép v
 
 `muse help` liệt kê đủ lệnh `accounts`, `proxies`, `settings`, `library`, `local-library`, `tasks`, `task-cancel`, `review`, `retry`, `cancel`, `reconcile`. Lệnh thay đổi nhận body từ JSON file hoặc stdin `-`, để không đặt cookie trên command line. Không in cookie/proxy password; mọi response quản trị được lọc whitelist. File chứa credentials do người dùng quản lý, không đưa vào Git.
 
-Nhập cookie và quản trị proxy thay đổi backend Muse khi người dùng chủ động gửi. Đăng nhập OTP/2FA/manual, nhận tài khoản shop, kích hoạt license và thiết lập của desktop vẫn thực hiện trong app gốc. Web không sửa các phần này trong quá trình cài đặt/nâng cấp.
+Nhập tài khoản/cookie và quản trị proxy chỉ thay đổi backend Muse khi người dùng chủ động gửi. Kích hoạt license, mua tài khoản và thiết lập của desktop vẫn thực hiện trong app gốc; web không tự sửa các phần này khi cài đặt/nâng cấp.
+
+### Thêm tài khoản từ web hoặc CLI
+
+Trong **Tài khoản → Thêm tài khoản**, chọn:
+
+- **Dán dữ liệu đăng nhập**: mỗi dòng là mã nhập Muse Studio đã có, `email|mật_khẩu[|2FA]`, hoặc `email|link_OTP`; cũng nhận file TXT. Chuỗi 2FA là khóa bí mật Base32, không phải mã 6 số. Email đơn được thử hòm thư HTTPS cùng tên miền; nếu hòm thư không hỗ trợ, dùng cách thủ công.
+- **Tự đăng nhập trong trình duyệt**: đặt tên rồi mở cửa sổ Chrome/Edge riêng trên máy chạy web. Bạn nhập thông tin và tự xử lý OTP/xác minh. Web chỉ lưu sau khi cookie Muse và `/api/session` xác nhận đăng nhập. Đóng cửa sổ hoặc bấm Dừng để hủy.
+- **Nhập cookie**: giữ cách nhập cookie đơn/batch trước đây.
+
+Web xử lý tối đa 100 tài khoản, lần lượt trong một lượt đăng nhập; có tiến độ và kết quả từng dòng. Trùng tên/email thì bỏ qua, không thay phiên đã có. Mất phản hồi khi lưu được đánh dấu **cần đối chiếu**, dừng các tài khoản còn lại và không tự gửi lại. Khởi động lại web không tự tiếp tục đăng nhập.
+
+Mật khẩu, khóa 2FA, mã nhập và link OTP chỉ giữ trong bộ nhớ lúc xử lý; không ghi vào SQLite, log hay localStorage. Cookie phiên hợp lệ được gửi một lần đến backend Muse để lưu tài khoản theo thao tác của bạn. Hộp thư OTP dùng HTTPS công khai, không theo redirect hoặc đọc mạng nội bộ. Mã nhập gửi đến API shop đã quan sát từ app gốc. CAPTCHA/checkpoint được chuyển sang cách thủ công, không giải tự động.
+
+```powershell
+.\muse.cmd accounts login-capabilities
+.\muse.cmd accounts login login-input.json
+.\muse.cmd accounts login-status JOB_ID
+.\muse.cmd accounts login-cancel JOB_ID
+```
+
+JSON tự động: `{ "mode":"batch", "text":"...", "requestId":"UUID tùy chọn" }`. JSON thủ công: `{ "mode":"manual", "label":"Tên tài khoản" }`. Có thể thêm `proxy_id`; lỗi proxy dừng đăng nhập, không tự đổi sang IP trực tiếp. Không đưa file đầu vào chứa thông tin đăng nhập vào Git; CLI cũng nhận `-` để đọc JSON qua stdin. Lưu `id` nhận được rồi kiểm tra trạng thái, không gửi lại batch khi chưa rõ kết quả.
+
+Cần Chrome hoặc Edge cài trên máy chạy server. Có thể dùng `MUSE_BROWSER_EXE` để trỏ đến trình duyệt Chromium riêng, và `MUSE_PROXY_FILE` nếu Muse lưu danh mục proxy ở vị trí khác. SOCKS5 có username/password chưa được hỗ trợ cho đăng nhập. Chạy `npm ci --ignore-scripts` thủ công nếu launcher chưa chuẩn bị được thành phần đăng nhập.
+
+Các bước đăng nhập được đối chiếu với REA của Muse 4.1.2 và kiểm thử bằng backend/trình duyệt giả. Chưa dùng tài khoản thật để xác minh mọi nhà cung cấp OTP hoặc giao diện đăng nhập từ xa; nếu form/nhà cung cấp thay đổi, dùng đăng nhập thủ công. Không tuyên bố đã đăng nhập thật chỉ từ kiểm thử giả.
 
 ## Runtime, dữ liệu và kiểm tra
 

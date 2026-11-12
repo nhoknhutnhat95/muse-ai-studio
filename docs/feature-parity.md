@@ -19,14 +19,14 @@ Ngày kiểm chứng: 2026-11-11. Nguồn: UI app trên máy, OpenAPI backend c�
 | Hậu kỳ | Silenceedge trim,speed,loudness,audiofade,60fpsopticalflow,resize | ActualFFmpegfixturetests; resizeLanczos, notAIsuper-resolution |
 | Tiếnđộ | PersistentMuse/localqueues, cancel/retry/pause, unknown reconcile | Recovery, no duplicatePOST, concurrentpause/canceltests |
 | Thưviện | Backendcache + weboutputs/audio/renders,search/filter/sort/download/deletecache | Fakebackend tests, readonlyinstalledcache1363files |
-| Tàikhoản | Safelisting/details, cookies/batchimport, quota/test/keepalive, enabled, proxyassign, CRUD/bulk | Mockedmutations only; live readonly23accounts |
+| Tàikhoản | Đăng nhập batch bằng mã nhập/password/2FA/link OTP, cửa sổ thủ công, cookie import, quota/test/keepalive, CRUD | REA auth/claim flow; fake browser/backend tests and UI; no real login mutation |
 | Proxy | Maskedlist,create/edit/delete,test,HTTP/SOCKS5/IPv6 | Mockedtests; no installedconfig changed |
 | Càiđặt | Webdefaults,queue1–8,timeout60–1800,librarypreferences | SQLitemerging/persistence; imagebackendtimeoutcapped600 |
 | CLI | JSONcommands for all above; planimport,batchimport,assetupload/mediawait/download | CLI/HTTP integration, help/schema/doctor |
 
 ## Khác biệt có chủ ý và giới hạn còn lại
 
-- **Đăng nhập OTP/2FA/manual, nhận tài khoản từ shop, kích hoạt license**: giữ ở Muse desktop. Chưa có giao thức HTTP được xác minh; không tái tạo hoặc bỏ qua license gate. Nhập cookie đã có và quản lý backend hoạt động qua web.
+- **Đăng nhập tài khoản**: web có browser worker riêng cho password/2FA/OTP và thủ công, sau đó lưu phiên qua `/admin/accounts`. Nhận mã nhập shop theo giao thức quan sát tĩnh từ app; không mua tài khoản hoặc thay đổi license. CAPTCHA/checkpoint cần người dùng tự xử lý. Chưa kiểm thử đăng nhập thật hoặc mọi nhà cung cấp OTP; hòm thư không được hỗ trợ dùng cách thủ công. Không sao chép bytecode app vào production.
 - **Automatic image repair**: chọn trước `autoRepairAttempts:0|1|2` trong bản nháp. Mặc định0 (thủ công); bật1/2 sẽ dùng thêm lượt ảnh khi chạy batch có cờ kỹ thuật. Vòng lặp có giới hạn, giữ bản cũ và không retry POST chưa rõ. Cờ pixel có thể dương tính giả; có nút duyệt thủ công.
 - QC pixel không nhận diện lỗi mặt/tay/chữ hoặc xác minh công dụng. Cần QC nội dung độc lập. Các thông số kỹ thuật thành công không chứng minh chất lượng nội dung.
 - Thư viện web đọc backendcache và thành phẩm web; không tự quét mọi thư mục tải tùy chỉnh của desktop. Muốn dựng clip ngoài hai kho này, nhập chúng trong trang dựng phim/CLI.

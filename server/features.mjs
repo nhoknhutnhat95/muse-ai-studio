@@ -4,9 +4,11 @@ import {createAffiliateService,parseAffiliateInfo} from './affiliate.mjs';
 import {createMediaService} from './media.mjs';
 import {workflowOptions,planWorkflow} from './workflows.mjs';
 import {createAffiliateQC} from './affiliate-qc.mjs';
+import {createAccountLoginService} from './account-login.mjs';
 
-export function createFeatures({store,backend,dataDir,autoStart,body,json,file}){
+export function createFeatures({store,backend,dataDir,autoStart,body,json,file,accountLoginOptions={}}){
   const admin=createAdminService({store,backend,dataDir}),affiliate=createAffiliateService({store,backend}),media=createMediaService({store,dataDir,autoStart});
+  const accountLogin=createAccountLoginService({...accountLoginOptions,store,backend,admin});
   const qc=createAffiliateQC({store,dataDir});
   async function inspectImages(input){const report=await qc.inspect(input);for(const image of report.images){store.db.prepare('INSERT OR REPLACE INTO image_qc VALUES(?,?,?)').run(image.jobId,JSON.stringify({...image,engine:report.engine,checkedAt:report.checkedAt}),report.checkedAt);if(input.apply===true){const p=store.get(input.projectId),scene=p.scenes.find(s=>s.id===image.sceneId),job=p.jobs.find(j=>j.id===image.jobId);if(scene.reviewRequired&&!job.review)store.review(image.jobId,{state:image.flags.length?'rejected':'approved',note:image.flags.length?image.flags.map(f=>f.message).join(' ').slice(0,2000):'Đã qua kiểm tra pixel local; chưa xác minh nội dung ngữ nghĩa.'});}}return report;}
   async function route(req,res,url){
@@ -24,6 +26,12 @@ export function createFeatures({store,backend,dataDir,autoStart,body,json,file})
     if(p==='/api/affiliate/batch'&&m==='POST')return send(await affiliate.batch(await body(req)));
     if(p==='/api/affiliate/info'&&m==='POST')return send(parseAffiliateInfo((await body(req)).text));
     if(p==='/api/affiliate/qc'&&m==='POST')return send(await inspectImages(await body(req)));
+    if(p==='/api/admin/account-login/capabilities'&&m==='GET')return send(accountLogin.capabilities());
+    if(p==='/api/admin/account-login'&&m==='GET')return send({jobs:accountLogin.list()});
+    if(p==='/api/admin/account-login'&&m==='POST')return send(accountLogin.start(await body(req,128*1024)));
+    const loginJob=/^\/api\/admin\/account-login\/([a-f0-9-]{36})(?:\/(cancel))?$/.exec(p);
+    if(loginJob&&m==='GET'&&!loginJob[2])return send(accountLogin.get(loginJob[1]));
+    if(loginJob&&m==='POST'&&loginJob[2]==='cancel')return send(accountLogin.cancel(loginJob[1]));
     if(p==='/api/admin/accounts'&&m==='GET')return send(await admin.accounts(query));
     if(p==='/api/admin/accounts'&&m==='POST')return send(await admin.addAccount(await body(req)));
     if(p==='/api/admin/accounts/keepalive'&&m==='POST')return send(await admin.keepaliveAll());
@@ -66,5 +74,5 @@ export function createFeatures({store,backend,dataDir,autoStart,body,json,file})
     }
     return false;
   }
-  return {route,admin,affiliate,media,inspectImages,close:()=>media.close()};
+  return {route,admin,affiliate,media,accountLogin,inspectImages,close:async()=>{await accountLogin.close();await media.close();}};
 }

@@ -23,13 +23,13 @@ async function file(res,req,filename) {
   res.writeHead(code,{'Content-Type':types[path.extname(filename)]||'application/octet-stream','Content-Length':end-start+1,'Accept-Ranges':'bytes',...(code===206?{'Content-Range':`bytes ${start}-${end}/${s.size}`}:{})});
   if(req.method==='HEAD')return res.end();await pipeline(createReadStream(filename,{start,end}),res);
 }
-export async function createApp({dataDir=process.env.MUSE_DATA_DIR||path.join(ROOT,'data'),backend=new Backend(),port=Number(process.env.MUSE_PORT||3210),startQueue=true}={}) {
+export async function createApp({dataDir=process.env.MUSE_DATA_DIR||path.join(ROOT,'data'),backend=new Backend(),port=Number(process.env.MUSE_PORT||3210),startQueue=true,accountLoginOptions={}}={}) {
   dataDir=path.resolve(dataDir);
   const release=acquireLock(dataDir);
   let store;
   try{store=new Store(dataDir);}catch(e){release();throw e;}
   const queue=new Queue(store,backend);
-  let features;try{features=createFeatures({store,backend,dataDir,autoStart:startQueue,body,json,file});}catch(e){store.close();release();throw e;}
+  let features;try{features=createFeatures({store,backend,dataDir,autoStart:startQueue,body,json,file,accountLoginOptions});}catch(e){store.close();release();throw e;}
   queue.settings=()=>features.admin.settings().queue;
   queue.reviewCompleted=async(project,job)=>{
     if(project.metadata?.affiliate?.reviewMode!=='flagged')return;
@@ -91,6 +91,7 @@ export async function createApp({dataDir=process.env.MUSE_DATA_DIR||path.join(RO
       const backendCancel=/^\/api\/backend\/tasks\/([\w-]+)\/cancel$/.exec(p);
       if(backendCancel&&m==='POST'){const id=backendCancel[1];const owned=store.db.prepare('SELECT id FROM jobs WHERE task_id=?').get(id);if(owned)return json(res,200,await queue.cancel(owned.id));const tasks=await backend.request('/admin/tasks?limit=500');const task=tasks.tasks?.find(t=>t.id===id);if(!task||!['image','video'].includes(task.type))throw new AppError('Không tìm thấy tác vụ ảnh/video.',404);if(!['queued','processing','running','pending'].includes(task.status))throw new AppError('Tác vụ đã kết thúc; không hủy.',409);const result=await backend.request(backend.route(task.type,id)+'/cancel',{method:'POST',body:{}});return json(res,200,{id,status:result.status});}
       const publicFiles={'/':'index.html','/app.js':'app.js','/project-panels.js':'project-panels.js','/workflows-ui.js':'workflows-ui.js','/affiliate-ui.js':'affiliate-ui.js','/admin-ui.js':'admin-ui.js','/media-ui.js':'media-ui.js','/features.css':'features.css','/styles.css':'styles.css','/favicon.svg':'favicon.svg'};
+      publicFiles['/account-login-ui.js']='account-login-ui.js';
       if(publicFiles[p]&&['GET','HEAD'].includes(m))return await file(res,req,path.join(ROOT,'public',publicFiles[p]));
       throw new AppError('Không tìm thấy.',404,'NOT_FOUND');
     }catch(e){if(res.headersSent){res.destroy();return;}json(res,e.status||500,{error:{code:e.code||'INTERNAL_ERROR',message:e.status?e.message:'Lỗi nội bộ. Xem nhật ký máy chủ.'}});if(!e.status)console.error(e);}

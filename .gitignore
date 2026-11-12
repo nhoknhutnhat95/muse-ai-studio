@@ -1,0 +1,53 @@
+# Private workspace content, generated media, and installed tool runtimes.
+/data/
+/workspaces/
+/research/
+/tools/
+/AGENTS.md
+node_modules/
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+test-results/
+coverage/
+
+# Local verification artifacts can contain project titles and private paths.
+/docs/*
+!/docs/feature-parity.md
+
+# Credentials and browser sessions never belong in this repository.
+.env
+.env.*
+!.env.example
+credentials/
+secrets/
+chrome_user_data/
+**/cookie*.json
+**/accounts*.json
+**/*token*.json
+**/*key*.txt
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Databases, logs, exports and media are recreated or supplied on each machine.
+*.log
+*.sqlite
+*.sqlite-*
+*.db
+*.db-*
+*.lock
+*.mp4
+*.webm
+*.mov
+*.mkv
+*.mp3
+*.wav
+*.m4a
+*.zip
+*.7z
+*.bak
+Thumbs.db
+.DS_Store

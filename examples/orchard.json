@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "title": "Vườn chôm chôm · từ Codex",
+  "settings": {
+    "size": "16:9",
+    "duration": 10,
+    "concurrency": 2
+  },
+  "scenes": [
+    {
+      "id": "s001",
+      "title": "Khu vườn lúc bình minh",
+      "kind": "video",
+      "prompt": "Cinematic wide establishing shot of a Vietnamese rambutan orchard at sunrise, soft mist, gentle dolly forward, natural birdsong, no text, no logos.",
+      "narration": "Khi bình minh vừa lên, khu vườn bắt đầu một ngày mới."
+    },
+    {
+      "id": "s002",
+      "title": "Cận cảnh trái chín",
+      "kind": "video",
+      "prompt": "Macro close-up of ripe red rambutans on a branch, dew droplets, warm natural light, slow camera slide, realistic botanical detail, no text, no logos.",
+      "narration": "Ẩn dưới lớp vỏ rực rỡ là câu chuyện của một mùa chăm sóc."
+    }
+  ]
+}

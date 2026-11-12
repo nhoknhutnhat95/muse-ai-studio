@@ -1,0 +1,173 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Muse Studio script v1",
+  "type": "object",
+  "required": [
+    "title",
+    "scenes"
+  ],
+  "properties": {
+    "version": {
+      "const": 1
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "settings": {
+      "type": "object",
+      "properties": {
+        "size": {
+          "enum": [
+            "16:9",
+            "9:16",
+            "1:1",
+            "4:3",
+            "3:4"
+          ],
+          "default": "16:9"
+        },
+        "duration": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 30,
+          "default": 10
+        },
+        "concurrency": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 8,
+          "default": 2
+        }
+      }
+    },
+    "scenes": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 500,
+      "items": {
+        "type": "object",
+        "required": [
+          "prompt"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_-]{1,64}$"
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "kind": {
+            "enum": [
+              "video",
+              "image"
+            ],
+            "default": "video"
+          },
+          "prompt": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 12000
+          },
+          "narration": {
+            "type": "string",
+            "maxLength": 30000
+          },
+          "size": {
+            "enum": [
+              "16:9",
+              "9:16",
+              "1:1",
+              "4:3",
+              "3:4"
+            ]
+          },
+          "duration": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30
+          },
+          "reference": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^(asset:[a-f0-9]{32}|scene:[a-zA-Z0-9_-]{1,64})$"
+          },
+          "image": {
+            "type": "string",
+            "description": "CLI-only: local PNG/JPEG/WebP path, relative to script file. Uploaded before import."
+          },
+          "references": {
+            "type": "array",
+            "maxItems": 6,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "pattern": "^(asset:[a-f0-9]{32}|scene:[a-zA-Z0-9_-]{1,64})$"
+            }
+          },
+          "referenceMode": {
+            "enum": [
+              "first_frame",
+              "identity"
+            ],
+            "default": "first_frame"
+          },
+          "reviewRequired": {
+            "type": "boolean",
+            "default": false,
+            "description": "Image must be approved before dependent scenes can run."
+          },
+          "accountId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Optional fixed Muse account. Null selects automatically."
+          },
+          "images": {
+            "type": "array",
+            "maxItems": 6,
+            "items": {
+              "type": "string"
+            },
+            "description": "CLI-only local paths, uploaded before import."
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "image"
+                }
+              },
+              "required": [
+                "kind"
+              ]
+            },
+            "then": {},
+            "else": {
+              "properties": {
+                "size": {
+                  "enum": [
+                    "16:9",
+                    "9:16"
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Preserved workflow, affiliate storyboard and render metadata."
+    }
+  }
+}

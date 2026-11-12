@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "title": "Kiểm thử kết nối · Vườn chôm chôm",
+  "settings": {
+    "size": "16:9",
+    "duration": 10,
+    "concurrency": 1
+  },
+  "scenes": [
+    {
+      "id": "s001",
+      "title": "Bình minh trên vườn chôm chôm",
+      "prompt": "A continuous 10-second cinematic wide shot of a lush Vietnamese rambutan orchard at sunrise. Ripe red rambutan clusters on trees, soft golden morning light and light mist. Slow smooth forward camera movement. Natural leaves moving in a light breeze. Realistic botanical detail. Ambient birdsong. No people, no text, no logos, no narration.",
+      "narration": "Khi bình minh vừa lên, khu vườn bắt đầu một ngày mới.",
+      "kind": "video",
+      "size": "16:9",
+      "duration": 10,
+      "reference": null
+    }
+  ],
+  "results": []
+}

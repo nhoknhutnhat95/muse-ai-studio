@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { randomUUID, createHash } from 'node:crypto';
 import { spawn, spawnSync } from 'node:child_process';
 import { AppError } from './schema.mjs';
+import {mediaPaths} from './runtime-paths.mjs';
 
 const ROOT=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const VOICES=[
@@ -21,15 +22,15 @@ function inside(root,file){const rel=path.relative(root,file);return rel!==''&&!
 
 /** Local media queue. Only server-resolved asset/job files enter the fixed worker. */
 export function createMediaService({store,dataDir=store.dir,ffmpeg,ffprobe,python,autoStart=true}={}){
-  const dir=realpathSync(dataDir), bin=path.join(process.env.LOCALAPPDATA||'', 'Programs','Muse AI Studio','_internal','bin');
-  ffmpeg=ffmpeg||path.join(bin,'ffmpeg.exe');ffprobe=ffprobe||path.join(bin,'ffprobe.exe');
-  python=python||path.join(ROOT,'tools','media-runtime',process.platform==='win32'?'Scripts/python.exe':'bin/python');
+  const dir=realpathSync(dataDir), runtime=mediaPaths();
+  ffmpeg=ffmpeg||runtime.ffmpeg;ffprobe=ffprobe||runtime.ffprobe;
+  python=python||runtime.python;
   const worker=path.join(ROOT,'scripts','media_worker.py');
   const db=store.db;
   db.exec(`CREATE TABLE IF NOT EXISTS media_jobs(id TEXT PRIMARY KEY,kind TEXT NOT NULL,project_id TEXT,state TEXT NOT NULL,spec TEXT NOT NULL,result TEXT,error TEXT,progress TEXT,attempt INTEGER DEFAULT 1,created TEXT,updated TEXT);`);
   db.prepare("UPDATE media_jobs SET state='interrupted',error='Máy chủ dừng trong khi xử lý. Có thể thử lại thủ công.',updated=? WHERE state IN ('running','cancelling')").run(now());
   let timer=null,active=null,closed=false,ttsAvailable=false;
-  const musicRoot=path.join(bin,'..','ah_bgm'),musicCatalog=new Map();
+  const musicRoot=path.join(dataDir,'presets','music'),musicCatalog=new Map();
   try{const library=JSON.parse(readFileSync(path.join(musicRoot,'library.json'),'utf8'));for(const [mood,tracks] of Object.entries(library.moods||{})){if(!/^[a-z0-9_-]+$/i.test(mood)||!Array.isArray(tracks))continue;for(const track of tracks){if(!/^[a-z0-9_-]+$/i.test(track.name)||track.enabled===false)continue;const file=path.join(musicRoot,mood,`${track.name}.mp3`);if(existsSync(file)&&inside(realpathSync(musicRoot),realpathSync(file)))musicCatalog.set(`${mood}/${track.name}`,{id:`${mood}/${track.name}`,name:track.name,mood,duration:track.duration,bytes:statSync(file).size,file});}}}catch{}
   if(existsSync(python)){const p=spawnSync(python,['-c','import edge_tts'],{windowsHide:true,timeout:10000,stdio:'ignore'});ttsAvailable=p.status===0;}
   const capabilities=()=>({ffmpeg:existsSync(ffmpeg),ffprobe:existsSync(ffprobe),python:existsSync(python),tts:{available:ttsAvailable,provider:'edge-tts',online:true},musicLibrary:[...musicCatalog.values()].map(({file,...record})=>record),render:{available:existsSync(ffmpeg)&&existsSync(ffprobe)&&existsSync(python),resolutions:['source','720p','1080p','4k'],fps:[24,25,30,60],transitions:TRANSITIONS,upscale:'Lanczos (not AI)',interpolation:'FFmpeg optical flow MCI/AOBMC'}});
@@ -52,7 +53,7 @@ export function createMediaService({store,dataDir=store.dir,ffmpeg,ffprobe,pytho
     const p=input.projectId?store.get(input.projectId):null,text=input.text??p?.scenes.map(s=>s.narration||'').filter(Boolean).join('\n\n');
     if(typeof text!=='string'||!text.trim()||text.length>100000)throw new AppError('Lời đọc cần 1–100000 ký tự.');
     const voice=input.voice||VOICES[0].id;if(!/^[a-z]{2,3}-[A-Z]{2}-[A-Za-z0-9]+Neural$/.test(voice))throw new AppError('Mã giọng đọc không hợp lệ.');
-    if(!ttsAvailable)throw new AppError('Chưa có edge-tts trong tools/media-runtime. Xem hướng dẫn cài đặt media.',503,'TTS_UNAVAILABLE');
+    if(!ttsAvailable)throw new AppError('Chưa có runtime lồng tiếng. Chạy Setup-Muse-Web.cmd rồi khởi động lại web.',503,'TTS_UNAVAILABLE');
     for(const key of ['rate','pitch','volume'])if(input[key]!==undefined&&!Number.isInteger(input[key]))throw new AppError(`${key}: cần số nguyên.`);
     return enqueue('tts',{projectId:p?.id,text,voice,rate:number(input.rate,0,-90,100,'Tốc độ'),pitch:number(input.pitch,0,-100,100,'Cao độ'),volume:number(input.volume,0,-100,100,'Âm lượng')});
   }

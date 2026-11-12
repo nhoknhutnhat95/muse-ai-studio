@@ -53,6 +53,8 @@ export class Queue {
         if(!raw)throw new AppError('Muse đã xong nhưng chưa trả URL media.');
         this.store.setJob(job.id,{state:'downloading',result:{url:raw},error:null});
         await this.download(this.store.job(job.id),scene);
+      } else if(d.status==='unknown') {
+        this.store.setJob(job.id,{state:'unknown',error:'Chưa rõ kết quả trên Muse; giữ task ID để đối chiếu, không gửi lại tự động.'});
       } else if(['failed','error','cancelled','canceled'].includes(d.status)) {
         this.store.setJob(job.id,{state:d.status.startsWith('cancel')?'cancelled':'failed',error:typeof d.error==='string'?d.error:'Muse không hoàn thành tác vụ.'});
         this.store.event(job.project_id,`${scene.title}: ${d.status}.`);

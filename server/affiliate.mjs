@@ -218,7 +218,7 @@ export function affiliateOptions() {
   };
 }
 
-export function createAffiliateService({ store, backend, presetDir = path.join(process.env.LOCALAPPDATA || '', 'Programs', 'Muse AI Studio', '_internal', 'assets', 'kol_presets') } = {}) {
+export function createAffiliateService({ store, backend, presetDir = path.join(store?.dir || process.env.MUSE_DATA_DIR || 'data', 'presets', 'kol') } = {}) {
   function presets() {
     return KOL_PRESETS.flatMap(preset => {
       try {

@@ -48,7 +48,7 @@ export function createAdminUI({api,esc,heading,toast}) {
         <h2>Thư viện</h2><div class="form-row"><label>Sắp xếp<select name="sort">${[['newest','Mới nhất'],['oldest','Cũ nhất'],['name','Tên tệp'],['largest','Dung lượng lớn nhất'],['smallest','Dung lượng nhỏ nhất']].map(([v,label])=>opt(v,label,settings.library.sort)).join('')}</select></label><label>Loại media<select name="kind">${[['all','Tất cả'],['video','Video'],['image','Ảnh']].map(([v,label])=>opt(v,label,settings.library.kind)).join('')}</select></label>${field('pageSize','Số tệp mỗi trang',settings.library.pageSize,'number','min="1" max="500" required')}</div><button type="submit" class="primary">Lưu cài đặt</button>
       </form>
       <div class="connection-card"><h3>Lưu và xuất kết quả</h3><p class="muted">Chọn Tải về trên media để lưu qua trình duyệt. CLI xuất danh sách kết quả cùng trạng thái và đường dẫn media thành JSON:</p><pre>node D:/muse-studio-ai/bin/muse.mjs export PROJECT_ID --out ket-qua.json</pre></div>
-      <div class="connection-card"><h3>Cài đặt ứng dụng Muse gốc</h3><p class="muted">Thư mục tải về của Muse, giới hạn tác vụ và thời gian chờ của app gốc được quản lý trong tab Cài Đặt của Muse AI Studio. Cài đặt tại đây áp dụng cho web studio.</p></div>`;
+      <div class="connection-card"><h3>Dữ liệu của web</h3><p class="muted">Dự án, tài khoản và media lưu riêng trong thư mục data của web. Giới hạn hàng đợi và thời gian chờ ở trên áp dụng cho các tác vụ mới.</p></div>`;
   }
   async function render(view){
     if(!['accounts','proxies','settings'].includes(view))return false;
@@ -59,7 +59,7 @@ export function createAdminUI({api,esc,heading,toast}) {
       if(view==='proxies'){const data=await api('/api/admin/proxies');if(token!==epoch||!live(view))return true;proxies=data.proxies;html=renderProxies();}
       if(view==='settings'){const settings=await api('/api/settings');if(token!==epoch||!live(view))return true;html=renderSettings(settings);}
       if(token===epoch&&live(view)){$('[data-adm-view]').innerHTML=html;if(view==='accounts')await loginUI.refresh();}
-    } catch(error){if(token===epoch&&live(view))$('[data-adm-view]').innerHTML=`${heading('Chưa tải được dữ liệu','Giữ Muse AI Studio mở để kết nối backend.',button('refresh','↻ Thử lại'))}<div class="notice">${esc(error.message)}</div>`;}
+    } catch(error){if(token===epoch&&live(view))$('[data-adm-view]').innerHTML=`${heading('Chưa tải được dữ liệu','Kiểm tra mục Kết nối Muse hoặc chạy Restart-Muse-Web.cmd.',button('refresh','↻ Thử lại'))}<div class="notice">${esc(error.message)}</div>`;}
     return true;
   }
   function addAccountEditor(){

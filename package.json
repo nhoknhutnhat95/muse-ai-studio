@@ -1,6 +1,6 @@
 {
   "name": "muse-studio-web",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
   "description": "Local Muse workspace and automation CLI",
@@ -13,7 +13,9 @@
   "scripts": {
     "start": "node server/index.mjs",
     "test": "node --test test/*.test.mjs",
-    "check": "node scripts/check.mjs"
+    "check": "node scripts/check.mjs",
+    "setup": "node scripts/setup-runtime.mjs",
+    "migrate:desktop": "node scripts/migrate-desktop.mjs"
   },
   "dependencies": {
     "playwright-core": "1.65.0"

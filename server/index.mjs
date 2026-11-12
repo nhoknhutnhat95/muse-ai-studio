@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { Store } from './store.mjs';
-import { Backend } from './backend.mjs';
+import { createBackend } from './standalone.mjs';
 import { Queue } from './queue.mjs';
 import { AppError, normalize, template } from './schema.mjs';
 import { acquireLock } from './lock.mjs';
@@ -23,13 +23,14 @@ async function file(res,req,filename) {
   res.writeHead(code,{'Content-Type':types[path.extname(filename)]||'application/octet-stream','Content-Length':end-start+1,'Accept-Ranges':'bytes',...(code===206?{'Content-Range':`bytes ${start}-${end}/${s.size}`}:{})});
   if(req.method==='HEAD')return res.end();await pipeline(createReadStream(filename,{start,end}),res);
 }
-export async function createApp({dataDir=process.env.MUSE_DATA_DIR||path.join(ROOT,'data'),backend=new Backend(),port=Number(process.env.MUSE_PORT||3210),startQueue=true,accountLoginOptions={}}={}) {
+export async function createApp({dataDir=process.env.MUSE_DATA_DIR||path.join(ROOT,'data'),backend,port=Number(process.env.MUSE_PORT||3210),startQueue=true,accountLoginOptions={}}={}) {
   dataDir=path.resolve(dataDir);
   const release=acquireLock(dataDir);
   let store;
   try{store=new Store(dataDir);}catch(e){release();throw e;}
+  try{backend??=await createBackend(dataDir);}catch(e){store.close();release();throw e;}
   const queue=new Queue(store,backend);
-  let features;try{features=createFeatures({store,backend,dataDir,autoStart:startQueue,body,json,file,accountLoginOptions});}catch(e){store.close();release();throw e;}
+  let features;try{features=createFeatures({store,backend,dataDir,autoStart:startQueue,body,json,file,accountLoginOptions});}catch(e){await backend.close?.();store.close();release();throw e;}
   queue.settings=()=>features.admin.settings().queue;
   queue.reviewCompleted=async(project,job)=>{
     if(project.metadata?.affiliate?.reviewMode!=='flagged')return;
@@ -48,7 +49,7 @@ export async function createApp({dataDir=process.env.MUSE_DATA_DIR||path.join(RO
       res.setHeader('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'none'");
       const url=new URL(req.url,`http://${req.headers.host}`),p=url.pathname,m=req.method;
       if(!['GET','HEAD'].includes(m)&&req.headers['x-muse-client']!=='studio')throw new AppError('Thiếu X-Muse-Client: studio.',403);
-      if(p==='/api/health')return json(res,200,{ok:true,version:'0.2.0'});
+      if(p==='/api/health')return json(res,200,{ok:true,version:'0.3.0',backendMode:backend.mode||'external'});
       if(await features.route(req,res,url))return;
       if(p==='/api/backend'&&m==='GET')return json(res,200,await backend.status());
       if(p==='/api/template'&&m==='GET'){const settings=features.admin.settings().defaults;return json(res,200,{...template,settings:{...settings,size:['16:9','9:16'].includes(settings.size)?settings.size:'16:9'}});}
@@ -96,9 +97,9 @@ export async function createApp({dataDir=process.env.MUSE_DATA_DIR||path.join(RO
       throw new AppError('Không tìm thấy.',404,'NOT_FOUND');
     }catch(e){if(res.headersSent){res.destroy();return;}json(res,e.status||500,{error:{code:e.code||'INTERNAL_ERROR',message:e.status?e.message:'Lỗi nội bộ. Xem nhật ký máy chủ.'}});if(!e.status)console.error(e);}
   });
-  try{await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(port,'127.0.0.1',resolve);});}catch(e){await features.close();store.close();release();throw e;}
+  try{await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(port,'127.0.0.1',resolve);});}catch(e){await features.close();await backend.close?.();store.close();release();throw e;}
   if(startQueue)queue.start();
-  return {server,store,queue,features,url:`http://127.0.0.1:${server.address().port}`,close:async()=>{queue.stop();await features.close();await new Promise(r=>server.close(r));while(queue.busy)await new Promise(r=>setTimeout(r,30));store.close();release();}};
+  return {server,store,queue,features,backend,url:`http://127.0.0.1:${server.address().port}`,close:async()=>{queue.stop();await features.close();await new Promise(r=>server.close(r));while(queue.busy)await new Promise(r=>setTimeout(r,30));await backend.close?.();store.close();release();}};
 }
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){
   const app=await createApp();console.log(`Muse Studio Web · ${app.url}`);

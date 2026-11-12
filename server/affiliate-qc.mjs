@@ -3,6 +3,7 @@ import { promisify } from 'node:util';
 import { realpath, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { AppError } from './schema.mjs';
+import {mediaPaths} from './runtime-paths.mjs';
 
 const execFileAsync = promisify(execFile);
 const WIDTH = 72, HEIGHT = 128, PIXELS = WIDTH * HEIGHT;
@@ -119,8 +120,8 @@ async function decodeLocalImage(file, { ffmpeg, ffprobe }) {
 
 export function createAffiliateQC({ store, dataDir = store?.dir, ffmpeg, ffprobe, decodeImage } = {}) {
   const root = path.resolve(dataDir || '.');
-  const bin = path.join(process.env.LOCALAPPDATA || '', 'Programs', 'Muse AI Studio', '_internal', 'bin');
-  const decoder = decodeImage || (file => decodeLocalImage(file, { ffmpeg: ffmpeg || path.join(bin, 'ffmpeg.exe'), ffprobe: ffprobe || path.join(bin, 'ffprobe.exe') }));
+  const runtime = mediaPaths();
+  const decoder = decodeImage || (file => decodeLocalImage(file, { ffmpeg: ffmpeg || runtime.ffmpeg, ffprobe: ffprobe || runtime.ffprobe }));
   async function owned(relative) {
     if (typeof relative !== 'string') return null;
     const file = path.resolve(root, relative), rel = path.relative(root, file);

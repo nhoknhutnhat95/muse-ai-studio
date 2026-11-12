@@ -8,6 +8,8 @@ import http from 'node:http';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { DatabaseSync } from 'node:sqlite';
+import {existsSync} from 'node:fs';
+import {runtimeRoot,mediaPaths} from '../server/runtime-paths.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const powershell = path.join(process.env.SystemRoot || 'C:\\Windows', 'System32/WindowsPowerShell/v1.0/powershell.exe');
@@ -24,7 +26,7 @@ test('Windows launcher works with source only and explains startup failures', { 
   const dir = await mkdtemp(path.join(tmpdir(), 'muse-launcher-'));
   const clone = path.join(dir, 'Bản clone có dấu & khoảng trắng');
   await mkdir(clone);
-  for (const item of ['server', 'public', 'schema', 'scripts', 'package.json', 'Start-Muse-Web.cmd']) {
+  for (const item of ['server', 'public', 'schema', 'scripts', 'vendor', 'package.json', 'Start-Muse-Web.cmd']) {
     await cp(path.join(root, item), path.join(clone, item), { recursive: true });
   }
   const port = await freePort();
@@ -159,5 +161,19 @@ test('Windows launcher works with source only and explains startup failures', { 
     assert.equal(result.code,1,JSON.stringify(result));assert.match(result.stdout,/Dang co tac vu/);
     assert.equal(await readFile(lock,'utf8'),before);
     assert.equal((await (await fetch(`${url}/api/health`)).json()).ok,true);
+  });
+  await t.test('standalone clone uses portable runtime with empty AppData and independent accounts',{skip:!existsSync(mediaPaths().python)},async()=>{
+    const independentPort=await freePort(),independentData=path.join(clone,'doc lap');
+    const result=await launch({MUSE_BACKEND_URL:'',MUSE_BACKEND_MODE:'standalone',MUSE_RUNTIME_DIR:runtimeRoot(),MUSE_PORT:String(independentPort),MUSE_DATA_DIR:independentData});
+    assert.equal(result.code,0,JSON.stringify(result));
+    const owner=JSON.parse(await readFile(path.join(independentData,'studio.lock'),'utf8'));
+    const child=JSON.parse(await readFile(path.join(independentData,'backend/runtime-process.json'),'utf8'));
+    try{
+      const status=await(await fetch(`http://127.0.0.1:${independentPort}/api/backend`)).json();
+      assert.equal(status.connected,true);assert.equal(status.mode,'standalone');assert.equal(status.accounts.total,0);
+      const media=await(await fetch(`http://127.0.0.1:${independentPort}/api/media/capabilities`)).json();assert.equal(media.render.available,true);
+    }finally{process.kill(owner.pid);}
+    let exited=false;for(let i=0;i<100;i++){try{process.kill(child.pid,0);}catch{exited=true;break;}await new Promise(r=>setTimeout(r,100));}
+    assert.equal(exited,true,'Owned backend exits when launcher server is terminated');
   });
 });

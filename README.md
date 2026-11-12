@@ -1,14 +1,14 @@
-# Muse Studio Web · v0.2
+# Muse Studio Web · v0.3
 
 Web local và CLI cho quy trình **Codex viết kịch bản → duyệt bản nháp → Muse tạo ảnh/video → lồng tiếng và dựng thành phẩm**.
 
-Mở **http://127.0.0.1:3210**. Khởi động bằng `Start-Muse-Web.cmd`. Giữ Muse AI Studio mở để backend duy trì phiên đăng nhập hợp lệ. Node.js 24+; máy chủ dùng Node core và SQLite, không cần cài cả REA để chạy web.
+Mở **http://127.0.0.1:3210**. Khởi động bằng `Start-Muse-Web.cmd`. **Không cần cài hoặc mở Muse AI Studio desktop.** Windows x64, Node.js 24+ và Chrome/Edge; launcher tự cài runtime riêng. Tạo ảnh/video vẫn dùng dịch vụ Muse trực tuyến và tài khoản hợp lệ còn quota.
 
 ## Chạy lần đầu trên máy Windows khác
 
 1. Cài **Node.js LTS phiên bản 24 trở lên** bằng Windows Installer (`.msi`) từ [nodejs.org](https://nodejs.org/en/download). Đóng/mở lại terminal sau khi cài; `node --version` phải hiện `v24` trở lên.
-2. Clone hoặc giải nén **toàn bộ mã nguồn**, rồi bấm `Start-Muse-Web.cmd` trong thư mục đó. Launcher tự chạy `npm ci` lần đầu để cài thành phần đăng nhập tài khoản; cần Internet cho bước này. Phần soạn thảo vẫn mở được nếu chưa cài thành phần đó. Web tự tạo thư mục dữ liệu; hỗ trợ đường dẫn có dấu/khoảng trắng.
-3. Để tạo ảnh/video và dùng tài khoản, cài/mở Muse AI Studio và đăng nhập trên máy nhận. Có thể mở web và chuẩn bị draft khi chưa có backend Muse. Các chức năng lồng tiếng/dựng phim cần thêm media runtime ở phần bên dưới.
+2. Clone hoặc giải nén **toàn bộ mã nguồn**, rồi bấm `Start-Muse-Web.cmd` trong thư mục đó. Launcher tự cài thành phần đăng nhập, Python portable, FFmpeg/FFprobe và Edge TTS; lần đầu cần Internet và vài phút. Các bản tải runtime được kiểm SHA-256, dependency Python được khóa phiên bản/hash. Web tự tạo thư mục dữ liệu; hỗ trợ đường dẫn có dấu/khoảng trắng.
+3. Mở **Tài khoản → Thêm tài khoản** trên web để đăng nhập tài khoản của máy nhận. Có thể chạy `Setup-Muse-Web.cmd` riêng để cài/sửa runtime. Backend, cookie và profile chạy riêng; không đọc cài đặt/license của Muse desktop.
 
 Nếu lỗi, launcher giữ cửa sổ để đọc thông báo: thiếu Node.js, Node quá cũ, SQLite không dùng được, hoặc cổng đang bận. Lỗi máy chủ có đường dẫn `server-error.log` để kiểm tra. Nếu dùng bản launcher cũ chỉ chớp rồi tắt, mở CMD tại thư mục clone rồi chạy `Start-Muse-Web.cmd` để thấy lỗi, sau đó cập nhật mã nguồn.
 
@@ -27,17 +27,17 @@ Sau khi cập nhật bằng `git pull --ff-only`, chạy **`Restart-Muse-Web.cmd
 | Đồng bộ nhân vật | 12 ô ảnh, tối đa 6 ảnh mỗi cảnh, chọn bằng @ImageN, preset vai trò, text-only hoặc identity |
 | Xưởng ảnh | Batch prompt, 5 tỷ lệ, nhiều ảnh tham chiếu, mẫu Creator/Packshot/Detail, gán kết quả sang Affiliate |
 | Affiliate | Một sản phẩm/batch thư mục hoặc JSON, manual/template/Muse Chat, 4–5 câu, 2–3 clip, ảnh khóa nhân vật, storyboard có thể sửa |
-| KOL / ảnh sản phẩm | 3 KOL có sẵn trong app, upload riêng, chuẩn hóa ảnh dọc, ghép sản phẩm/chi tiết 60/40 |
+| KOL / ảnh sản phẩm | KOL đã nhập riêng vào web, upload riêng, chuẩn hóa ảnh dọc, ghép sản phẩm/chi tiết 60/40 |
 | Duyệt ảnh | Gate ảnh trước video, duyệt/từ chối, tạo lại thủ công hoặc opt-in0–2lần; kiểm tra kỹ thuật tại máy |
 | Lồng tiếng | Edge TTS, MP3 và SRT, 5 preset Việt/Anh, chỉnh tốc độ/cao độ/âm lượng |
-| Dựng phim | Clip dự án hoặc video nhập riêng, thứ tự cảnh, nhạc nền/upload, 8 bản nhạc Muse, giảm nhạc khi có lời, phụ đề, chuyển cảnh |
+| Dựng phim | Clip dự án hoặc video nhập riêng, thứ tự cảnh, nhạc nền/upload, kho nhạc đã nhập riêng, giảm nhạc khi có lời, phụ đề, chuyển cảnh |
 | Hậu kỳ | Trích frame, tốc độ, cắt khoảng lặng, cân âm lượng, 24/25/30/60fps, nội suy quang học, 720p/1080p/4K Lanczos |
 | Hàng đợi | SQLite bền vững, pause/cancel/retry, tải media tự động, đối chiếu POST chưa rõ, hủy tác vụ Muse theo ID |
 | Thư viện | Kho backend và thành phẩm local, tìm/lọc/sắp xếp, xem/tải, xóa tệp backend được chọn rõ |
 | Tài khoản / proxy | Thêm bằng mã nhập, email/mật khẩu/2FA, link OTP hoặc trình duyệt thủ công; cookie đơn/batch, quota, test/keepalive, bật/tắt, chỉnh tên/gán proxy, CRUD |
 | Cài đặt | Mặc định dự án, giới hạn hàng đợi web, timeout, tùy chọn thư viện; lưu riêng trong SQLite web |
 
-Bảng bằng chứng và giới hạn: [docs/feature-parity.md](docs/feature-parity.md). Đây là bản tái tạo chức năng kết nối backend đã cài, không phải một engine tạo video chạy offline độc lập.
+Bảng bằng chứng và giới hạn: [docs/feature-parity.md](docs/feature-parity.md). Từ v0.3, web quản lý backend [Muse2API nguồn mở (MIT)](https://github.com/czg86389-hub/muse2api) riêng. Đây là ứng dụng local độc lập với Muse desktop; mô hình tạo media vẫn nằm ở dịch vụ Muse, không phải mô hình offline. Mã upstream được ghim commit trong `vendor/muse2api/UPSTREAM.md`.
 
 ## Dùng từ Codex
 
@@ -162,19 +162,25 @@ Các bước đăng nhập được đối chiếu với REA của Muse 4.1.2 v�
 - `data/studio.sqlite`: kịch bản, job Muse, job hậu kỳ, duyệt ảnh, cài đặt, sự kiện.
 - `data/assets/`, `data/outputs/`, `data/media-jobs/`: nguồn và thành phẩm; không ghi đè clip gốc khi dựng.
 - `data/backups/`: bản sao SQLite trước nâng cấp v0.2.
-- Backend key đọc phía server từ key file Muse; browser chỉ nhận trạng thái lọc.
+- `data/backend/`: tài khoản, proxy, key, profile và media của backend độc lập. Browser chỉ nhận trạng thái đã lọc; không nhận key/cookie.
 - Web bind `127.0.0.1`, kiểm tra Host/Origin và header cho mutation, không mở ra mạng LAN.
 - `tools/rea`: công cụ REA khảo sát độc lập. Bằng chứng nằm trong `research/`.
-- `tools/media-runtime`: Python venv riêng, đã cài `edge-tts==7.2.3`. FFmpeg/FFprobe dùng bản đi kèm Muse.
-
-Cài lại media runtime nếu cần:
+- `tools/standalone/`: Python portable, thư viện Python và FFmpeg; tự chuẩn bị bằng launcher, không lấy từ app Muse.
+- `data/presets/`: KOL/nhạc người dùng nhập. Máy clone mới dùng ảnh/nhạc riêng; không phân phối tài nguyên của app desktop.
 
 ```powershell
-python -m venv tools/media-runtime
-.\tools\media-runtime\Scripts\python.exe -m pip install edge-tts==7.2.3
+.\Setup-Muse-Web.cmd
 npm.cmd test
 npm.cmd run check
 ```
+
+Backend mặc định chạy ẩn, tự chọn cổng loopback, tự dừng khi web dừng. Trình duyệt tạo media chỉ mở khi cần, dùng profile riêng và giữ sandbox. `MUSE_BACKEND_MODE=desktop` hoặc `MUSE_BACKEND_URL` là chế độ tương thích tùy chọn, dùng backend ngoài như phiên bản cũ. `MUSE_RUNTIME_DIR`, `MUSE_PYTHON`, `MUSE_FFMPEG`, `MUSE_FFPROBE` cho phép chọn runtime riêng; không đặt biến này nếu dùng bộ cài tự động.
+
+### Chuyển dữ liệu desktop hiện có
+
+Khi web độc lập chưa có tài khoản, chạy `npm.cmd run migrate:desktop` trên máy có Muse desktop. Lệnh sao chép tài khoản/proxy, lịch sử, thư viện media và preset sang `data/`, không thay đổi bản gốc; từ chối nếu nguồn còn tác vụ đang chạy hoặc đích đã có dữ liệu. Tắt backend độc lập trước khi nhập. Phiên cookie vẫn chịu hạn sử dụng của Muse; không có cơ chế kéo dài giả.
+
+Tác vụ bị gián đoạn sau khi gửi được giữ `unknown`; không xoay tài khoản và tự gửi lại. Hủy khi đã gửi chỉ dừng theo dõi local, không bảo đảm dịch vụ đã hủy hoặc hoàn quota. Kiểm tra/giữ phiên và quota thực hiện bằng các nút/lệnh quản trị tương ứng.
 
 Tests dùng backend giả và video/ảnh giả lập; FFmpeg được chạy thật. Không gọi generation, quota mutation hoặc TTS online trong tests. Clip thử Muse 10 giây đã hoàn tất từ đợt v0.1; kết quả vẫn giữ nguyên. Thành công kỹ thuật không chứng minh nội dung đạt chất lượng.
 
@@ -182,4 +188,4 @@ Tests dùng backend giả và video/ảnh giả lập; FFmpeg được chạy th
 
 Git chỉ lưu mã nguồn web/CLI, schema, ví dụ, kiểm thử và tài liệu chức năng. `data/` (SQLite, kịch bản, ảnh/video, lịch sử), `research/`, runtime trong `tools/`, log, file credentials, ảnh kiểm chứng và `AGENTS.md` cá nhân được bỏ qua. Kiểm tra `git status` trước mỗi commit; `.gitignore` không ngăn việc đưa bí mật vào một file mã nguồn đang được theo dõi.
 
-Khi chia sẻ, dùng `git clone` hoặc `git archive` từ commit đã kiểm tra. **Copy/nén nguyên thư mục trên ổ đĩa vẫn mang theo các file bị Git bỏ qua.** Máy nhận cần cài Node.js 24+, Muse AI Studio với tài khoản/license của chính họ và media runtime theo hướng dẫn phía trên; thư mục `data/` mới được tạo khi chạy. Phiên đăng nhập và key của Muse gốc nằm trong `%LOCALAPPDATA%/Muse AI Studio`, không được đóng gói cùng mã nguồn này.
+Khi chia sẻ, dùng `git clone` hoặc `git archive` từ commit đã kiểm tra. **Copy/nén nguyên thư mục trên ổ đĩa vẫn mang theo các file bị Git bỏ qua.** Máy nhận cần Node.js 24+, Chrome/Edge và tài khoản Muse của chính họ; không cần Muse desktop. **Từ v0.3, phiên đăng nhập của web nằm trong `data/backend/` và sẽ đi theo nếu copy toàn bộ thư mục ổ đĩa.** `git clone`/`git archive` không mang theo `data/`, cookie, profile hay key.

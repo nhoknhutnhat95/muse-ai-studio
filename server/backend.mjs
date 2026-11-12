@@ -27,7 +27,7 @@ export class Backend {
     return u.pathname;
   }
   async media(raw,range) {
-    const route=this.mediaRoute(raw); const r=await fetch(this.base+route,{redirect:'error',headers:range?{Range:range}:{},signal:AbortSignal.timeout(120000)});
+    const route=this.mediaRoute(raw); const r=await fetch(this.base+route,{redirect:'error',headers:{...(this.key?{Authorization:`Bearer ${this.key}`} :{}),...(range?{Range:range}:{})},signal:AbortSignal.timeout(120000)});
     if(!r.ok)throw new AppError(`Không đọc được media (${r.status}).`,502);
     return r;
   }

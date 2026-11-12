@@ -75,6 +75,12 @@ try {
             } else { Write-Host 'Can npm ci de dung dang nhap tai khoan. Ban Node portable hien tai chua co npm.' }
         }
 
+        if (-not $env:MUSE_BACKEND_URL -and $env:MUSE_BACKEND_MODE -ne 'desktop') {
+            Write-Host 'Kiem tra runtime doc lap (lan dau can Internet)...'
+            & $studioNode (Join-Path $PSScriptRoot 'setup-runtime.mjs')
+            if ($LASTEXITCODE -ne 0) { throw 'Chua cai xong runtime doc lap. Chay Setup-Muse-Web.cmd va xem loi.' }
+        }
+
         $studioData = if ($env:MUSE_DATA_DIR) { $env:MUSE_DATA_DIR } else { Join-Path $studioRoot 'data' }
         if (-not [System.IO.Path]::IsPathRooted($studioData)) { $studioData = Join-Path $studioRoot $studioData }
         $studioData = [System.IO.Path]::GetFullPath($studioData)
@@ -93,7 +99,7 @@ try {
         if (-not $studioReady) { throw "May chu chua san sang sau 30 giay (PID $($studioProcess.Id)). Kiem tra log truoc khi thu lai." }
         Write-Host "Muse Web san sang: $studioUrl"
     }
-    Write-Host 'De tao anh/video, can mo Muse AI Studio va dang nhap tai khoan tren may nay.'
+    Write-Host 'Web mac dinh chay doc lap. Them tai khoan tai muc Tai khoan; khong can mo Muse desktop.'
     if (-not $NoBrowser) {
         try { Start-Process $studioUrl }
         catch { Write-Host "Khong tu mo duoc trinh duyet. Hay mo thu cong: $studioUrl" }

@@ -7,10 +7,11 @@ import { spawnSync } from 'node:child_process';
 import { Store } from '../server/store.mjs';
 import { normalize } from '../server/schema.mjs';
 import { createMediaService } from '../server/media.mjs';
+import {mediaPaths} from '../server/runtime-paths.mjs';
 
-const bin=path.join(process.env.LOCALAPPDATA||'', 'Programs','Muse AI Studio','_internal','bin');
-const ffmpeg=process.env.MUSE_TEST_FFMPEG||path.join(bin,'ffmpeg.exe'),ffprobe=process.env.MUSE_TEST_FFPROBE||path.join(bin,'ffprobe.exe');
-const python=path.resolve('tools/media-runtime',process.platform==='win32'?'Scripts/python.exe':'bin/python');
+const runtime=mediaPaths();
+const ffmpeg=process.env.MUSE_TEST_FFMPEG||runtime.ffmpeg,ffprobe=process.env.MUSE_TEST_FFPROBE||runtime.ffprobe;
+const python=runtime.python;
 const available=[ffmpeg,ffprobe,python].every(existsSync);
 function fixture(){const dir=mkdtempSync(path.join(os.tmpdir(),'muse-media-test-')),store=new Store(dir);return {dir,store};}
 function exec(args){const p=spawnSync(ffmpeg,['-nostdin','-hide_banner','-loglevel','error','-y',...args],{windowsHide:true,encoding:'utf8',timeout:30000});assert.equal(p.status,0,p.stderr);}

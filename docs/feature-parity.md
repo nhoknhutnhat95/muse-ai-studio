@@ -1,6 +1,6 @@
-# Đối chiếu Muse AI Studio 4.1.2 → Web 0.2
+# Đối chiếu Muse AI Studio 4.1.2 → Web 0.3
 
-Ngày kiểm chứng: 2026-11-11. Nguồn: UI app trên máy, OpenAPI backend cài đặt, REA static inspection bytecode Python (không chạy bytecode trích xuất). Backend được giữ nguyên qua app có đăng nhập/license hợp lệ.
+Ngày kiểm chứng: 2026-11-11. Nguồn: UI app trên máy, OpenAPI backend cài đặt, REA static inspection bytecode Python (không chạy bytecode trích xuất). Từ 2026-11-12 backend chạy độc lập bằng Muse2API MIT ghim commit, có adapter riêng; không dùng executable/bytecode/license desktop. Kiểm thử v0.3 sử dụng generation giả, chưa chạy clip trả phí mới.
 
 | Luồng desktop | Web/CLI | Xác minh |
 |---|---|---|
@@ -41,3 +41,7 @@ Ngày kiểm chứng: 2026-11-11. Nguồn: UI app trên máy, OpenAPI backend c�
 - `research/affiliate-parity.md`, `research/admin-parity.md`, `research/media-parity.md`
 - `docs/verification.md`: clip Musev0.1 thực tế và kiểm thử ban đầu.
 - `docs/verification-v02.md`: kết quả bản mở rộng, ảnh UI và runtime.
+
+## Runtime độc lập v0.3
+
+Launcher tự chuẩn bị Python portable + FFmpeg + Edge TTS. Backend tự chạy/dừng cùng web, key/profile/account store riêng trong data/backend. Thêm account/proxy, chọn tài khoản, nhiều ảnh, identity, thư viện và tiến độ giữ cùng contract. Hủy sau khi gửi không khẳng định đã hủy trên upstream; trạng thái không chắc chắn là unknown. Nguồn cài đặt, key, account và proxy của desktop không bị sửa. Preset KOL/nhạc chỉ sao chép local khi chủ máy nhập dữ liệu cũ; không đi theo Git.

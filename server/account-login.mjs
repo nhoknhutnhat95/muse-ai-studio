@@ -10,7 +10,7 @@ const safeId=/^[a-zA-Z0-9_-]{1,200}$/;
 async function selectedProxy(backend,id) {
   if(!id)return undefined;
   try {
-    const file=process.env.MUSE_PROXY_FILE||path.join(path.dirname(backend.keyFile),'muse2api_data','proxies.json');
+    const file=process.env.MUSE_PROXY_FILE||backend.proxyFile||path.join(path.dirname(backend.keyFile),'muse2api_data','proxies.json');
     const data=JSON.parse(await readFile(file,'utf8'));
     const list=Array.isArray(data)?data:Array.isArray(data.proxies)?data.proxies:Object.values(data.proxies||data);
     const record=list.find(p=>p?.id===id);if(!record)throw Error();
@@ -43,7 +43,7 @@ export function createAccountLoginService({store,backend,admin,login=loginWithBr
   async function run(job,inputs,controller,proxyId) {
     const signal=controller.signal;
     try {
-      const status=await backend.status();if(!status.connected)throw new LoginError('LOGIN_BACKEND','Mở Muse AI Studio và đợi backend sẵn sàng trước khi thêm tài khoản.',503);
+      const status=await backend.status();if(!status.connected)throw new LoginError('LOGIN_BACKEND','Backend chưa sẵn sàng. Xem mục Kết nối Muse và chạy lại launcher trước khi thêm tài khoản.',503);
       const proxy=await resolveProxy(proxyId);
       job.state='running';save(job);
       for(let index=0;index<inputs.length;index++) {

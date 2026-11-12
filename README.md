@@ -4,6 +4,16 @@ Web local và CLI cho quy trình **Codex viết kịch bản → duyệt bản n
 
 Mở **http://127.0.0.1:3210**. Khởi động bằng `Start-Muse-Web.cmd`. Giữ Muse AI Studio mở để backend duy trì phiên đăng nhập hợp lệ. Node.js 24+; máy chủ dùng Node core và SQLite, không cần cài cả REA để chạy web.
 
+## Chạy lần đầu trên máy Windows khác
+
+1. Cài **Node.js LTS phiên bản 24 trở lên** bằng Windows Installer (`.msi`) từ [nodejs.org](https://nodejs.org/en/download). Đóng/mở lại terminal sau khi cài; `node --version` phải hiện `v24` trở lên.
+2. Clone hoặc giải nén **toàn bộ mã nguồn**, rồi bấm `Start-Muse-Web.cmd` trong thư mục đó. Không cần `npm install`; web tự tạo thư mục dữ liệu. Đường dẫn có dấu và khoảng trắng được hỗ trợ.
+3. Để tạo ảnh/video và dùng tài khoản, cài/mở Muse AI Studio và đăng nhập trên máy nhận. Có thể mở web và chuẩn bị draft khi chưa có backend Muse. Các chức năng lồng tiếng/dựng phim cần thêm media runtime ở phần bên dưới.
+
+Nếu lỗi, launcher giữ cửa sổ để đọc thông báo: thiếu Node.js, Node quá cũ, SQLite không dùng được, hoặc cổng đang bận. Lỗi máy chủ có đường dẫn `server-error.log` để kiểm tra. Nếu dùng bản launcher cũ chỉ chớp rồi tắt, mở CMD tại thư mục clone rồi chạy `Start-Muse-Web.cmd` để thấy lỗi, sau đó cập nhật mã nguồn.
+
+Launcher mặc định dùng cổng `3210`. Có thể đặt `MUSE_PORT` (1–65535), `MUSE_DATA_DIR` (thư mục dữ liệu riêng) hoặc `MUSE_NODE` (đường dẫn đầy đủ đến `node.exe` bản portable). `Start-Muse-Web.cmd -NoBrowser` khởi động mà không mở trình duyệt. Mở lại launcher khi server sẵn sàng sẽ dùng lại server đang chạy trên cổng đó.
+
 **Dự án** có sidebar riêng bên phải, có tìm kiếm, vùng cuộn độc lập và tự cập nhật từ Codex/CLI. Trên màn hình hẹp, bấm **Dự án** ở thanh trên để mở danh sách từ bên phải. Mở thẳng dự án bằng `http://127.0.0.1:3210/?project=PROJECT_ID`; nút **Sao chép link** lấy đúng địa chỉ. Bản dựng có `projectId` hiện ngay trong **Video thành phẩm** phía trên storyboard để xem/tải; các clip nguồn vẫn nằm theo từng cảnh. Video dựng ngoài Muse Web không tự nhập vào danh sách này.
 
 ## Chức năng

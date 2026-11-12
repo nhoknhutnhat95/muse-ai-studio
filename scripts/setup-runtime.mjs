@@ -1,23 +1,14 @@
 import {createHash} from 'node:crypto';
-import {existsSync,createReadStream,createWriteStream} from 'node:fs';
-import {readFile,writeFile,mkdir,readdir,rename,open,unlink} from 'node:fs/promises';
-import {Readable} from 'node:stream';
-import {pipeline} from 'node:stream/promises';
+import {existsSync} from 'node:fs';
+import {readFile,writeFile,mkdir,readdir,rename} from 'node:fs/promises';
 import {spawn} from 'node:child_process';
 import path from 'node:path';
 import {ROOT,runtimeRoot} from '../server/runtime-paths.mjs';
+import {download} from './runtime-download.mjs';
+import {acquireSetupLock} from './runtime-setup-lock.mjs';
 
 const run=(exe,args,options={})=>new Promise((ok,no)=>{const c=spawn(exe,args,{cwd:ROOT,windowsHide:true,stdio:'inherit',...options});c.once('error',no);c.once('exit',code=>code===0?ok():no(Error(`Setup command failed (${code}).`)));});
-async function digest(file){const hash=createHash('sha256');for await(const chunk of createReadStream(file))hash.update(chunk);return hash.digest('hex');}
-async function download(spec,file){
-  if(existsSync(file)&&await digest(file)===spec.sha256)return file;
-  console.log(`Downloading ${new URL(spec.url).hostname} ...`);
-  const r=await fetch(spec.url,{signal:AbortSignal.timeout(600000)});if(!r.ok)throw Error(`Download HTTP ${r.status}`);
-  await pipeline(Readable.fromWeb(r.body),createWriteStream(file+'.part'));
-  if(await digest(file+'.part')!==spec.sha256)throw Error('Download checksum mismatch. Nothing was executed.');
-  await rename(file+'.part',file);return file;
-}
-async function extract(file,dir){await mkdir(dir,{recursive:true});await run('powershell.exe',['-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-Command','Expand-Archive -LiteralPath $env:MUSE_SETUP_ZIP -DestinationPath $env:MUSE_SETUP_DEST -Force'],{env:{...process.env,MUSE_SETUP_ZIP:file,MUSE_SETUP_DEST:dir}});}
+async function extract(file,dir){console.log(`Extracting ${path.basename(file)} ...`);await mkdir(dir,{recursive:true});await run('powershell.exe',['-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-Command','Expand-Archive -LiteralPath $env:MUSE_SETUP_ZIP -DestinationPath $env:MUSE_SETUP_DEST -Force'],{env:{...process.env,MUSE_SETUP_ZIP:file,MUSE_SETUP_DEST:dir}});}
 
 export async function setup(){
   if(process.platform!=='win32'||process.arch!=='x64')throw Error('Automatic runtime setup currently supports Windows x64.');
@@ -26,7 +17,7 @@ export async function setup(){
   const marker=path.join(root,'ready.json'),python=path.join(root,'python','python.exe');
   try{if(JSON.parse(await readFile(marker,'utf8')).fingerprint===fingerprint&&existsSync(python)&&existsSync(path.join(root,'ffmpeg/bin/ffmpeg.exe'))&&existsSync(path.join(root,'ffmpeg/bin/ffprobe.exe'))){console.log('Standalone runtime is ready.');return;}}catch{}
   await mkdir(root,{recursive:true});
-  const lock=await open(path.join(root,'setup.lock'),'wx').catch(()=>{throw Error('Another setup is running. If interrupted, remove tools/standalone/setup.lock then retry.');});
+  const release=await acquireSetupLock(path.join(root,'setup.lock'));
   try{
     const cache=path.join(root,'downloads');await mkdir(cache,{recursive:true});
     if(!existsSync(python)){
@@ -49,6 +40,6 @@ export async function setup(){
     await run(path.join(root,'ffmpeg/bin/ffprobe.exe'),['-version'],{stdio:'ignore'});
     await writeFile(marker,JSON.stringify({fingerprint,installedAt:new Date().toISOString()},null,2));
     console.log('Standalone setup complete. Open Start-Muse-Web.cmd.');
-  }finally{await lock.close();await unlink(path.join(root,'setup.lock'));}
+  }finally{await release();}
 }
 setup().catch(e=>{console.error(e.message);process.exitCode=1;});

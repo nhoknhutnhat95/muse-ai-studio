@@ -12,6 +12,8 @@ Mở **http://127.0.0.1:3210**. Khởi động bằng `Start-Muse-Web.cmd`. **Kh
 
 Nếu lỗi, launcher giữ cửa sổ để đọc thông báo: thiếu Node.js, Node quá cũ, SQLite không dùng được, hoặc cổng đang bận. Lỗi máy chủ có đường dẫn `server-error.log` để kiểm tra. Nếu dùng bản launcher cũ chỉ chớp rồi tắt, mở CMD tại thư mục clone rồi chạy `Start-Muse-Web.cmd` để thấy lỗi, sau đó cập nhật mã nguồn.
 
+FFmpeg tải khoảng **110 MB**. Bộ cài hiện số MB, phần trăm và tốc độ mỗi 3 giây; ưu tiên GitHub của nhà phát hành, chuyển nguồn nếu 30 giây không nhận dữ liệu. File tải dở được giữ để tiếp tục và luôn kiểm SHA-256 trước khi giải nén. Nếu bản cũ dừng lâu ở `Downloading www.gyan.dev ...`, đóng cửa sổ cài đó, chạy `git pull --ff-only` rồi mở lại `Start-Muse-Web.cmd`. Bộ cài tự phục hồi khóa của phiên cài đã dừng; không mở hai cửa sổ cài cùng lúc.
+
 Launcher mặc định dùng cổng `3210`. Có thể đặt `MUSE_PORT` (1–65535), `MUSE_DATA_DIR` (thư mục dữ liệu riêng) hoặc `MUSE_NODE` (đường dẫn đầy đủ đến `node.exe` bản portable). `Start-Muse-Web.cmd -NoBrowser` khởi động mà không mở trình duyệt. Mở lại launcher khi server sẵn sàng sẽ dùng lại server đang chạy trên cổng đó.
 
 Sau khi cập nhật bằng `git pull --ff-only`, chạy **`Restart-Muse-Web.cmd`** để nạp mã mới rồi tải lại trang. Lệnh chỉ dừng đúng server thuộc thư mục hiện tại; từ chối khởi động lại khi còn job tạo media, hậu kỳ hoặc đăng nhập chưa xong. Có thể thêm `-NoBrowser` nếu không cần mở trình duyệt.
